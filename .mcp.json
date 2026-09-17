@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "demo": {
+      "type": "stdio",
+      "command": "/Users/salmansheikh/Repos/ai-testing/mcp-demo/.venv/bin/python",
+      "args": [
+        "/Users/salmansheikh/Repos/ai-testing/mcp-demo/server.py"
+      ],
+      "env": {}
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": false
+                }
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "co8c1665c0p5k.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com",
+            "port": 5432,
+            "sshOptions": {
+                "port": 22
+            },
+            "driver": "PostgreSQL",
+            "name": "LanesLexicon_Dev",
+            "database": "dvh28of9obi80",
+            "username": "uft2pe9c91nglj",
+            "password": "pf543c57d96da7d1bf6801503bcbcc2f1aa512e5a0a3fad63988f72e1d3560e9e"
+        }
+    ]
+}
