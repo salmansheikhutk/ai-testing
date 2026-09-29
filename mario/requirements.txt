@@ -1,0 +1,6 @@
+gym==0.26.2
+nes-py==8.2.1
+gym-super-mario-bros==7.4.0
+numpy<2
+# nes-py pins pyglet<=1.5.21, which crashes on recent macOS; 1.5.31 is API-compatible
+pyglet==1.5.31
