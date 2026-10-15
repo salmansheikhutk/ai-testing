@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Mario Cheat Cartridge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,6 +38,7 @@
   }
 
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body {
     background: var(--bg); color: var(--ink);
     font: 16px/1.5 var(--body);
@@ -386,7 +388,15 @@
   screenEl.addEventListener("dragover", (e) => { e.preventDefault(); $("overlay").classList.add("drag"); });
   screenEl.addEventListener("dragleave", () => $("overlay").classList.remove("drag"));
   screenEl.addEventListener("drop", (e) => { e.preventDefault(); $("overlay").classList.remove("drag"); loadFile(e.dataTransfer.files[0]); });
-  try { const saved = JSON.parse(store.get("mcc-rom") || "null"); if (saved) loadRom(fromBase64(saved.data), saved.name, false); } catch {}
+  // When served locally from the mario folder, load the game file sitting
+  // next to play_mario.py. Otherwise use the one this browser remembers.
+  (async () => {
+    try {
+      const res = await fetch("../super-mario-bros.nes");
+      if (res.ok) return loadRom(new Uint8Array(await res.arrayBuffer()), "super-mario-bros.nes", false);
+    } catch {}
+    try { const saved = JSON.parse(store.get("mcc-rom") || "null"); if (saved) loadRom(fromBase64(saved.data), saved.name, false); } catch {}
+  })();
 
   // ---------- screen ----------
   const canvas = $("canvas"), ctx = canvas.getContext("2d");
