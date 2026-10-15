@@ -1,0 +1,547 @@
+<title>Mario Cheat Cartridge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500&family=Silkscreen&display=swap">
+<style>
+  /* Layout: a console deck. The TV screen on the left, the cartridge's
+     settings panel on the right; they stack on phones. */
+  :root {
+    --bg: #d3d0ca;          /* console plastic */
+    --panel: #e9e7e3;
+    --ink: #1e1c1a;
+    --muted: #5d5852;
+    --line: #b3afa8;
+    --accent: #c41230;      /* the red on the controller */
+    --accent-ink: #ffffff;
+    --label: #1b1a19;       /* black ridged label */
+    --label-ink: #f2f0ec;
+    --screen: #0b0b0b;
+    --ok: #2f7a3a;
+    --warn: #9a5b00;
+    --focus: #1f6feb;
+    --display: "Silkscreen", "Courier New", monospace;
+    --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1b1a; --panel: #272523; --ink: #ecebe7; --muted: #a39e97; --line: #3d3a37;
+      --accent: #ec3b52; --accent-ink: #ffffff; --label: #0e0e0d; --label-ink: #ecebe7;
+      --screen: #000000; --ok: #6cc47a; --warn: #e3a34a; --focus: #6ea8ff; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1b1a; --panel: #272523; --ink: #ecebe7; --muted: #a39e97; --line: #3d3a37;
+    --accent: #ec3b52; --accent-ink: #ffffff; --label: #0e0e0d; --label-ink: #ecebe7;
+    --screen: #000000; --ok: #6cc47a; --warn: #e3a34a; --focus: #6ea8ff; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.5 var(--body);
+    padding: 0 16px; padding-block: 20px 40px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px; }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  kbd, code, .addr { font-family: var(--mono); font-size: 0.8rem; }
+
+  /* Cartridge label header */
+  .label {
+    background: var(--label); color: var(--label-ink);
+    border-radius: 6px; padding: 18px 22px 16px;
+    background-image: repeating-linear-gradient(90deg, transparent 0 6px, rgba(255,255,255,0.04) 6px 7px);
+    display: grid; gap: 6px;
+  }
+  .label h1 {
+    font-family: var(--display); font-weight: 400; margin: 0;
+    font-size: clamp(1.6rem, 4.5vw, 2.6rem); line-height: 1.1; letter-spacing: 0.02em;
+    text-wrap: balance;
+  }
+  .label h1 span { color: var(--accent); }
+  .label p { margin: 0; max-width: 68ch; color: color-mix(in srgb, var(--label-ink) 78%, transparent); }
+
+  .deck { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 880px) { .deck { grid-template-columns: minmax(0, 1fr); } }
+
+  /* TV */
+  .tv { display: grid; gap: 10px; min-width: 0; }
+  .bezel {
+    background: var(--label); border-radius: 10px; padding: 14px;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.05);
+  }
+  .screen {
+    position: relative; background: var(--screen); border-radius: 4px; overflow: hidden;
+    aspect-ratio: 256 / 240; width: 100%; max-width: 100%;
+  }
+  .screen:focus { outline: none; }
+  .screen canvas {
+    display: block; width: 100%; height: 100%;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+  }
+  .overlay {
+    position: absolute; inset: 0; display: grid; place-content: center; justify-items: center;
+    gap: 14px; padding: 20px; text-align: center; color: #f2f0ec;
+    background: rgba(8, 8, 8, 0.86);
+  }
+  .overlay.drag { outline: 3px dashed var(--accent); outline-offset: -12px; }
+  .overlay h2 { font-family: var(--display); font-weight: 400; font-size: clamp(1rem, 3vw, 1.5rem); margin: 0; }
+  .overlay p { margin: 0; max-width: 42ch; color: #c9c5bf; }
+  .statusbar {
+    display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between;
+    font-size: 0.9rem; color: var(--muted);
+  }
+  .statusbar .now { font-family: var(--display); color: var(--ink); }
+  .statusbar .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .btn {
+    border: 1px solid var(--line); background: var(--panel); border-radius: 6px;
+    padding: 7px 12px; cursor: pointer; font-weight: 700; font-size: 0.9rem;
+  }
+  .btn:hover { border-color: var(--muted); }
+  .btn.primary {
+    background: var(--accent); color: var(--accent-ink); border-color: transparent;
+    font-family: var(--display); font-weight: 400; font-size: 1.15rem; letter-spacing: 0.06em;
+    padding: 12px 18px; border-radius: 999px; box-shadow: 0 3px 0 color-mix(in srgb, var(--accent) 55%, #000);
+  }
+  .btn.primary:active { transform: translateY(2px); box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 55%, #000); }
+  .btn.primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .overlay .btn { background: #f2f0ec; color: #1b1a19; border-color: transparent; }
+  .overlay .btn.primary { background: var(--accent); color: var(--accent-ink); }
+
+  /* Touch controls (phones and tablets only) */
+  .pad { display: none; justify-content: space-between; align-items: center; gap: 12px; user-select: none; -webkit-user-select: none; touch-action: none; }
+  @media (pointer: coarse) { .pad.on { display: flex; } }
+  .dpad { display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(2, 52px); gap: 4px; }
+  .dpad [data-btn="up"] { grid-column: 2; grid-row: 1; }
+  .dpad [data-btn="left"] { grid-column: 1; grid-row: 2; }
+  .dpad [data-btn="down"] { grid-column: 2; grid-row: 2; }
+  .dpad [data-btn="right"] { grid-column: 3; grid-row: 2; }
+  .face { display: flex; gap: 12px; align-items: center; }
+  .pad button {
+    border: 0; border-radius: 10px; background: var(--label); color: var(--label-ink);
+    font-family: var(--display); font-size: 1rem; touch-action: none;
+  }
+  .face button { width: 62px; height: 62px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); }
+  .face .start { width: auto; height: 34px; border-radius: 999px; padding: 0 12px; background: var(--label); font-size: 0.75rem; }
+  .pad button.held { filter: brightness(1.35); }
+
+  /* Settings panel */
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px; display: grid; gap: 22px; min-width: 0;
+  }
+  .step { display: grid; gap: 10px; }
+  .step h2 {
+    margin: 0; display: flex; gap: 10px; align-items: baseline;
+    font-family: var(--display); font-weight: 400; font-size: 1.05rem; letter-spacing: 0.04em;
+  }
+  .step h2 b { color: var(--accent); font-weight: 400; }
+  .hint { margin: 0; color: var(--muted); font-size: 0.9rem; }
+
+  .romrow { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .romstate { font-size: 0.92rem; min-width: 0; overflow-wrap: anywhere; }
+  .romstate.ok { color: var(--ok); }
+  .romstate.warn { color: var(--warn); }
+
+  .levels { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 4px; align-items: center; }
+  .levels .w { font-family: var(--display); font-size: 0.8rem; color: var(--muted); padding-right: 6px; }
+  .lv {
+    border: 1px solid var(--line); background: transparent; border-radius: 4px; padding: 5px 0;
+    font-family: var(--mono); font-size: 0.85rem; cursor: pointer; position: relative;
+    font-variant-numeric: tabular-nums;
+  }
+  .lv:hover { border-color: var(--muted); }
+  .lv.castle::after {
+    content: ""; position: absolute; top: 3px; right: 4px; width: 5px; height: 5px;
+    background: var(--muted); clip-path: polygon(0 0, 33% 0, 33% 40%, 66% 40%, 66% 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .lv[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+  .lv[aria-pressed="true"].castle::after { background: var(--panel); }
+
+  .cheats { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+  .cheat {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start;
+    padding: 10px 4px; border-top: 1px solid var(--line);
+  }
+  .cheat:first-child { border-top: 0; }
+  .cheat label { cursor: pointer; display: grid; gap: 2px; min-width: 0; }
+  .cheat .name { font-weight: 700; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+  .cheat .addr { color: var(--muted); font-weight: 500; }
+  .cheat .desc { color: var(--muted); font-size: 0.9rem; }
+  /* DIP-switch style toggle */
+  .switch { appearance: none; -webkit-appearance: none; margin: 2px 0 0; width: 44px; height: 24px; border-radius: 4px;
+    background: var(--line); position: relative; cursor: pointer; flex: none; transition: background 0.15s; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 2px;
+    background: var(--panel); box-shadow: 0 1px 0 rgba(0,0,0,0.25); transition: transform 0.15s; }
+  .switch:checked { background: var(--accent); }
+  .switch:checked::after { transform: translateX(20px); }
+  @media (prefers-reduced-motion: reduce) { .switch, .switch::after { transition: none; } }
+
+  .startrow { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+  .startrow .summary { color: var(--muted); font-size: 0.9rem; min-width: 0; }
+
+  .keys { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 16px; margin: 0; font-size: 0.9rem; }
+  .keys div { display: flex; gap: 8px; align-items: baseline; }
+  .keys dt { min-width: 0; }
+  .keys kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--bg); white-space: nowrap; }
+  .keys dd { margin: 0; color: var(--muted); }
+  footer { color: var(--muted); font-size: 0.85rem; max-width: 80ch; }
+</style>
+
+<div class="wrap">
+  <header class="label">
+    <h1>Mario <span>Cheat</span> Cartridge</h1>
+    <p>Play Super Mario Bros. in your browser with the cheats you choose. Pick any level from 1-1 to 8-4, flip on the switches you want, and press Start.</p>
+  </header>
+
+  <main class="deck">
+    <section class="tv" aria-label="Game screen">
+      <div class="bezel">
+        <div class="screen" id="screen" tabindex="-1">
+          <canvas id="canvas" width="256" height="240" aria-label="Super Mario Bros. game"></canvas>
+          <div class="overlay" id="overlay">
+            <h2 id="ov-title">Insert the game file</h2>
+            <p id="ov-text">This page doesn't include the game. Choose your Super Mario Bros. ROM file (it ends in .nes), or drop it here.</p>
+            <button class="btn" id="ov-choose" type="button">Choose game file</button>
+            <button class="btn primary" id="ov-start" type="button" hidden>Start</button>
+          </div>
+        </div>
+      </div>
+      <div class="statusbar">
+        <span><span class="now" id="now">No game running</span></span>
+        <span class="actions">
+          <button class="btn" id="sound" type="button" aria-pressed="true">Sound on</button>
+          <button class="btn" id="stop" type="button" hidden>Stop game</button>
+        </span>
+      </div>
+      <div class="pad" id="pad" aria-label="Touch controls">
+        <div class="dpad">
+          <button type="button" data-btn="up" aria-label="Up">▲</button>
+          <button type="button" data-btn="left" aria-label="Left">◀</button>
+          <button type="button" data-btn="down" aria-label="Down">▼</button>
+          <button type="button" data-btn="right" aria-label="Right">▶</button>
+        </div>
+        <div class="face">
+          <button type="button" class="start" data-btn="start">START</button>
+          <button type="button" data-btn="b" aria-label="B: run and fireball">B</button>
+          <button type="button" data-btn="a" aria-label="A: jump">A</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Game settings">
+      <div class="step">
+        <h2><b>1</b> Game file</h2>
+        <div class="romrow">
+          <button class="btn" id="choose" type="button">Choose file</button>
+          <span class="romstate" id="romstate">No game file loaded yet.</span>
+        </div>
+        <input type="file" id="file" accept=".nes" hidden>
+        <p class="hint">The file stays on your device. Once loaded, this browser remembers it for next time.</p>
+      </div>
+
+      <div class="step">
+        <h2><b>2</b> Level</h2>
+        <div class="levels" id="levels" role="group" aria-label="Choose a level"></div>
+        <p class="hint">Levels ending in 4 are castles. 8-4 is the last level, with Bowser at the end.</p>
+      </div>
+
+      <div class="step">
+        <h2><b>3</b> Cheats</h2>
+        <ul class="cheats" id="cheats"></ul>
+        <p class="hint">Switches take effect right away, even mid-game.</p>
+      </div>
+
+      <div class="startrow">
+        <button class="btn primary" id="start" type="button" disabled>Start</button>
+        <span class="summary" id="summary"></span>
+      </div>
+
+      <dl class="keys" aria-label="Keyboard controls">
+        <div><dt><kbd>← →</kbd></dt><dd>Move</dd></div>
+        <div><dt><kbd>↓</kbd></dt><dd>Go down pipes</dd></div>
+        <div><dt><kbd>Space</kbd></dt><dd>Jump</dd></div>
+        <div><dt><kbd>Shift</kbd></dt><dd>Run (hold)</dd></div>
+        <div><dt><kbd>F</kbd></dt><dd>Fireball</dd></div>
+        <div><dt><kbd>Enter</kbd></dt><dd>Pause</dd></div>
+      </dl>
+    </section>
+  </main>
+
+  <footer>
+    Fan-made cheat tool for the 1985 NES game. Cheats work by changing the game's memory every frame; the code next to each switch is the memory address it changes.
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsnes@1.2.1/dist/jsnes.min.js"></script>
+<script src="core.js"></script>
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const { BTN } = MarioCore;
+
+  // ---------- settings ----------
+  const CHEATS = [
+    { id: "invincible", name: "Invincible", addr: "0x079F", desc: "Star power stays on, so enemies can't hurt you." },
+    { id: "floor", name: "Lava & pit floor", addr: "0x00CE", desc: "An invisible floor at ground level. Walk across pits and lava instead of falling in." },
+    { id: "time", name: "Unlimited time", addr: "0x07F8", desc: "The clock never runs out." },
+    { id: "lives", name: "Infinite lives", addr: "0x075A", desc: "You never run out of lives, so there's no Game Over." },
+    { id: "arrows", name: "8-4 maze arrows", addr: "pipe map", desc: "In 8-4, yellow arrows point to the pipes that lead forward. Stand in the middle of the pipe and press Down." },
+  ];
+  const settings = { world: 1, stage: 1, cheats: { invincible: false, floor: false, time: false, lives: false, arrows: true }, sound: true };
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); return true; } catch { return false; } },
+  };
+  try { Object.assign(settings, JSON.parse(store.get("mcc-settings") || "{}")); } catch {}
+  const saveSettings = () => store.set("mcc-settings", JSON.stringify(settings));
+
+  // ---------- level grid ----------
+  const levels = $("levels");
+  for (let w = 1; w <= 8; w++) {
+    const label = document.createElement("span");
+    label.className = "w"; label.textContent = `W${w}`;
+    levels.append(label);
+    for (let s = 1; s <= 4; s++) {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "lv" + (s === 4 ? " castle" : "");
+      b.textContent = `${w}-${s}`; b.dataset.w = w; b.dataset.s = s;
+      b.setAttribute("aria-label", `World ${w}-${s}${s === 4 ? ", castle" : ""}`);
+      b.addEventListener("click", () => { settings.world = w; settings.stage = s; saveSettings(); renderSettings(); });
+      levels.append(b);
+    }
+  }
+
+  // ---------- cheat switches ----------
+  const list = $("cheats");
+  for (const c of CHEATS) {
+    const li = document.createElement("li"); li.className = "cheat";
+    li.innerHTML = `<input class="switch" type="checkbox" id="cheat-${c.id}" role="switch">
+      <label for="cheat-${c.id}"><span class="name">${c.name}<span class="addr">${c.addr}</span></span>
+      <span class="desc">${c.desc}</span></label>`;
+    li.querySelector("input").addEventListener("change", (e) => { settings.cheats[c.id] = e.target.checked; saveSettings(); renderSettings(); });
+    list.append(li);
+  }
+
+  function renderSettings() {
+    for (const b of levels.querySelectorAll(".lv")) {
+      b.setAttribute("aria-pressed", String(+b.dataset.w === settings.world && +b.dataset.s === settings.stage));
+    }
+    for (const c of CHEATS) $(`cheat-${c.id}`).checked = !!settings.cheats[c.id];
+    const on = CHEATS.filter((c) => settings.cheats[c.id] && (c.id !== "arrows" || isMaze())).map((c) => c.name.toLowerCase());
+    const level = `World ${settings.world}-${settings.stage}`;
+    $("summary").textContent = `${level}, ${on.length ? on.join(", ") : "no cheats"}.`;
+    $("sound").textContent = settings.sound ? "Sound on" : "Sound off";
+    $("sound").setAttribute("aria-pressed", String(settings.sound));
+    renderOverlay();
+  }
+  const isMaze = () => settings.world === 8 && settings.stage === 4;
+
+  // ---------- game file ----------
+  const TESTED_SHA256 = "ec299b990e8bfee8ba46e3f61d63b2e1ae5b8a2e431de84e2e4bbd692dc53586";
+  let rom = null, romName = "";
+
+  async function sha256(bytes) {
+    try {
+      const h = await crypto.subtle.digest("SHA-256", bytes);
+      return [...new Uint8Array(h)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    } catch { return null; }
+  }
+  function toBase64(bytes) { let s = ""; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); }
+  function fromBase64(b64) { const s = atob(b64); const out = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i); return out; }
+
+  async function loadRom(bytes, name, remember) {
+    const state = $("romstate");
+    if (bytes.length < 16 || bytes[0] !== 0x4e || bytes[1] !== 0x45 || bytes[2] !== 0x53 || bytes[3] !== 0x1a) {
+      state.className = "romstate warn";
+      state.textContent = `${name} isn't an NES game file. Choose the Super Mario Bros. file that ends in .nes.`;
+      return;
+    }
+    rom = bytes; romName = name;
+    const hash = await sha256(bytes);
+    let saved = false;
+    if (remember) saved = store.set("mcc-rom", JSON.stringify({ name, data: toBase64(bytes) }));
+    if (hash && hash !== TESTED_SHA256) {
+      state.className = "romstate warn";
+      state.textContent = `Loaded ${name}. It's a different version from the one these cheats were tested on, so cheats or arrows may not work right.`;
+    } else {
+      state.className = "romstate ok";
+      state.textContent = `Loaded ${name}.` + (remember && !saved ? " This browser couldn't save it for next time." : "");
+    }
+    $("start").disabled = false;
+    renderOverlay();
+  }
+  async function loadFile(file) {
+    if (!file) return;
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    await loadRom(bytes, file.name, true);
+  }
+  $("choose").addEventListener("click", () => $("file").click());
+  $("ov-choose").addEventListener("click", () => $("file").click());
+  $("file").addEventListener("change", (e) => loadFile(e.target.files[0]));
+  const screenEl = $("screen");
+  screenEl.addEventListener("dragover", (e) => { e.preventDefault(); $("overlay").classList.add("drag"); });
+  screenEl.addEventListener("dragleave", () => $("overlay").classList.remove("drag"));
+  screenEl.addEventListener("drop", (e) => { e.preventDefault(); $("overlay").classList.remove("drag"); loadFile(e.dataTransfer.files[0]); });
+  try { const saved = JSON.parse(store.get("mcc-rom") || "null"); if (saved) loadRom(fromBase64(saved.data), saved.name, false); } catch {}
+
+  // ---------- screen ----------
+  const canvas = $("canvas"), ctx = canvas.getContext("2d");
+  const image = ctx.createImageData(256, 240);
+  const pixels = new Uint32Array(image.data.buffer);
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 256, 240);
+
+  const ARROW_ART = ["..XXXXX..", "..XOOOX..", "..XOOOX..", "..XOOOX..", "XXXOOOXXX", "XOOOOOOOX", ".XOOOOOX.", "..XOOOX..", "...XOX...", "....X...."];
+  function drawArrow(tipX, tipY, dir, bob) {
+    const color = { X: "#000000", O: "#ffe600" };
+    for (let r = 0; r < ARROW_ART.length; r++) {
+      for (let c = 0; c < 9; c++) {
+        const ch = ARROW_ART[r][c]; if (ch === ".") continue;
+        ctx.fillStyle = color[ch];
+        if (dir === "down") ctx.fillRect(tipX - 9 + c * 2, tipY - 20 - bob + r * 2, 2, 2);
+        else ctx.fillRect(tipX - 20 - bob + r * 2, tipY - 9 + (8 - c) * 2, 2, 2);
+      }
+    }
+  }
+
+  // ---------- sound ----------
+  let audio = null;
+  const RING = 8192, ringL = new Float32Array(RING), ringR = new Float32Array(RING);
+  let wr = 0, rd = 0;
+  function onAudioSample(l, r) {
+    ringL[wr] = l; ringR[wr] = r; wr = (wr + 1) & (RING - 1);
+    if (wr === rd) rd = (rd + 1) & (RING - 1); // drop the oldest sample if full
+  }
+  function startAudio() {
+    if (audio) { audio.resume().catch(() => {}); return audio.sampleRate; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return 44100;
+    try {
+      audio = new AC();
+      const node = audio.createScriptProcessor(1024, 0, 2);
+      node.onaudioprocess = (e) => {
+        const L = e.outputBuffer.getChannelData(0), R = e.outputBuffer.getChannelData(1);
+        const vol = settings.sound && running ? 1 : 0;
+        for (let i = 0; i < L.length; i++) {
+          if (rd !== wr) { L[i] = ringL[rd] * vol; R[i] = ringR[rd] * vol; rd = (rd + 1) & (RING - 1); }
+          else { L[i] = R[i] = 0; }
+        }
+      };
+      node.connect(audio.destination);
+      return audio.sampleRate;
+    } catch { audio = null; return 44100; }
+  }
+  $("sound").addEventListener("click", () => { settings.sound = !settings.sound; saveSettings(); renderSettings(); });
+
+  // ---------- input ----------
+  const keys = new Set();          // pressed keyboard codes
+  const touch = new Set();         // pressed touch buttons
+  const KEYMAP = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down", Space: "a", KeyX: "a", ShiftLeft: "run", ShiftRight: "run", KeyZ: "run", KeyF: "fire", Enter: "start" };
+  addEventListener("keydown", (e) => {
+    const k = KEYMAP[e.code]; if (!k || !running) return;
+    if (e.target.closest && e.target.closest("input")) return;
+    e.preventDefault(); keys.add(k);
+  });
+  addEventListener("keyup", (e) => { const k = KEYMAP[e.code]; if (k) keys.delete(k); });
+  addEventListener("blur", () => { keys.clear(); touch.clear(); });
+  for (const b of document.querySelectorAll(".pad [data-btn]")) {
+    const name = b.dataset.btn;
+    const down = (e) => { e.preventDefault(); touch.add(name); b.classList.add("held"); };
+    const up = (e) => { e.preventDefault(); touch.delete(name); b.classList.remove("held"); };
+    b.addEventListener("pointerdown", down);
+    b.addEventListener("pointerup", up); b.addEventListener("pointercancel", up); b.addEventListener("pointerleave", up);
+  }
+  function heldButtons() {
+    const has = (k) => keys.has(k) || touch.has(k);
+    const held = [];
+    if (has("left")) held.push(BTN.LEFT);
+    if (has("right")) held.push(BTN.RIGHT);
+    if (has("up")) held.push(BTN.UP);
+    if (has("down")) held.push(BTN.DOWN);
+    if (has("a")) held.push(BTN.A);
+    if (has("start")) held.push(BTN.START);
+    // Run and fireball both use B, and a fireball needs a fresh B press, so
+    // F releases B while running: tapping F always throws.
+    if (has("run") !== has("fire") || has("b")) held.push(BTN.B);
+    return held;
+  }
+
+  // ---------- game loop ----------
+  let nes = null, running = false, raf = 0, last = 0, acc = 0, tick = 0;
+  const FRAME_MS = 1000 / 60.0988;
+
+  function startGame() {
+    if (!rom) return;
+    stopGame();
+    const sampleRate = startAudio();
+    wr = rd = 0;
+    nes = new jsnes.NES({
+      sampleRate,
+      onFrame(buffer) { for (let i = 0; i < 61440; i++) pixels[i] = 0xff000000 | buffer[i]; },
+      onAudioSample,
+    });
+    let s = ""; for (let i = 0; i < rom.length; i += 0x8000) s += String.fromCharCode.apply(null, rom.subarray(i, i + 0x8000));
+    nes.loadROM(s);
+    MarioCore.startLevel(nes, settings.world, settings.stage);
+    running = true; last = performance.now(); acc = 0;
+    $("stop").hidden = false; $("pad").classList.add("on");
+    renderOverlay();
+    $("now").textContent = `World ${settings.world}-${settings.stage}`;
+    document.activeElement?.blur?.();
+    screenEl.focus({ preventScroll: true });
+    raf = requestAnimationFrame(loop);
+  }
+  function stopGame() {
+    running = false; cancelAnimationFrame(raf); keys.clear(); touch.clear();
+    $("stop").hidden = true; $("pad").classList.remove("on");
+    $("now").textContent = "No game running";
+    renderOverlay();
+  }
+  function loop(now) {
+    if (!running) return;
+    acc += Math.min(now - last, 100); last = now;
+    let frames = 0;
+    while (acc >= FRAME_MS && frames < 4) {
+      MarioCore.applyCheats(nes, settings.cheats);
+      MarioCore.setButtons(nes, heldButtons());
+      nes.frame();
+      acc -= FRAME_MS; frames++; tick++;
+    }
+    if (frames) {
+      ctx.putImageData(image, 0, 0);
+      if (settings.cheats.arrows) {
+        const bob = Math.floor(tick / 10) % 2 ? 2 : 0;
+        for (const a of MarioCore.mazeArrows(nes)) drawArrow(a.x, a.y, a.dir, bob);
+      }
+      const m = nes.cpu.mem;
+      if (m[MarioCore.RAM.OPER_MODE] === 1) $("now").textContent = `World ${m[MarioCore.RAM.WORLD] + 1}-${m[MarioCore.RAM.STAGE] + 1}`;
+    }
+    raf = requestAnimationFrame(loop);
+  }
+
+  function renderOverlay() {
+    const ov = $("overlay");
+    ov.hidden = running;
+    if (running) return;
+    if (!rom) {
+      $("ov-title").textContent = "Insert the game file";
+      $("ov-text").textContent = "This page doesn't include the game. Choose your Super Mario Bros. ROM file (it ends in .nes), or drop it here.";
+      $("ov-choose").hidden = false; $("ov-start").hidden = true;
+    } else {
+      $("ov-title").textContent = `World ${settings.world}-${settings.stage}`;
+      $("ov-text").textContent = $("summary").textContent.replace(/^World \d-\d, /, "").replace(/^./, (c) => c.toUpperCase());
+      $("ov-choose").hidden = true; $("ov-start").hidden = false;
+    }
+  }
+
+  $("start").addEventListener("click", startGame);
+  $("ov-start").addEventListener("click", startGame);
+  $("stop").addEventListener("click", stopGame);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) { keys.clear(); touch.clear(); } else last = performance.now(); });
+
+  renderSettings();
+})();
+</script>
