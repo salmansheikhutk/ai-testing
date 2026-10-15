@@ -1,0 +1,1116 @@
+<title>Etymon Tree</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400;1,700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a dig site. The searched word sits at the surface; each step down the
+   tree is one layer deeper into the past, shaded like soil strata. Detail rail on the right. */
+:root {
+  --bg: #e8ece9;
+  --surface: #f7f9f7;
+  --ink: #16201c;
+  --muted: #5a6862;
+  --line: #b6c2bc;
+  --soil: #7a603c;
+  --accent: #1d5c55;
+  --accent-ink: #f2f7f5;
+  --warn: #9a5a00;
+
+  --f-pie: #8a6a3b;
+  --f-germanic: #2f7a4a;
+  --f-italic: #b03d3a;
+  --f-hellenic: #2c5ca6;
+  --f-celtic: #5f7f1e;
+  --f-baltoslavic: #7650a0;
+  --f-indoiranian: #b9740c;
+  --f-semitic: #16807f;
+  --f-sinitic: #b8235a;
+  --f-japonic: #c0392b;
+  --f-turkic: #3c7fa8;
+  --f-uralic: #6b7c3a;
+  --f-other: #66707a;
+
+  --font-display: "Gentium Book Plus", "Gentium Plus", "Charis SIL", Georgia, "Times New Roman", serif;
+  --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111513; --surface: #1a201d; --ink: #e5ece8; --muted: #98a79f; --line: #34413b;
+    --soil: #c9a370; --accent: #6cc0b2; --accent-ink: #0d1a17; --warn: #e2a84b;
+    --f-pie: #d0aa6e; --f-germanic: #6cc58b; --f-italic: #ec7d78; --f-hellenic: #7fa8ee;
+    --f-celtic: #a9c95a; --f-baltoslavic: #b897e0; --f-indoiranian: #ebae4c; --f-semitic: #5ccfc9;
+    --f-sinitic: #ef78a4; --f-japonic: #f08a7e; --f-turkic: #7cbde3; --f-uralic: #b5c477; --f-other: #a3adb6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111513; --surface: #1a201d; --ink: #e5ece8; --muted: #98a79f; --line: #34413b;
+  --soil: #c9a370; --accent: #6cc0b2; --accent-ink: #0d1a17; --warn: #e2a84b;
+  --f-pie: #d0aa6e; --f-germanic: #6cc58b; --f-italic: #ec7d78; --f-hellenic: #7fa8ee;
+  --f-celtic: #a9c95a; --f-baltoslavic: #b897e0; --f-indoiranian: #ebae4c; --f-semitic: #5ccfc9;
+  --f-sinitic: #ef78a4; --f-japonic: #f08a7e; --f-turkic: #7cbde3; --f-uralic: #b5c477; --f-other: #a3adb6;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 56px; display: grid; gap: 22px; }
+@media (max-width: 520px) { .wrap { padding-inline: 16px; } }
+
+/* Masthead + search */
+.mast { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+.brand { display: grid; gap: 2px; }
+.brand h1 { margin: 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: clamp(34px, 5vw, 46px); line-height: 1; letter-spacing: -0.01em; }
+.brand h1 .ast { color: var(--soil); font-style: normal; }
+.brand p { margin: 0; color: var(--muted); max-width: 54ch; }
+.live-status { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.live-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); flex: none; }
+.live-status[data-state="ready"] .dot { background: var(--f-germanic); }
+.live-status[data-state="off"] .dot { background: var(--warn); }
+
+.search { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+.search input, .search select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.search input { flex: 1 1 260px; font-family: var(--font-display); font-size: 22px; padding-block: 8px; }
+.search select { flex: 0 1 200px; }
+.search input:focus-visible, .search select:focus-visible, button:focus-visible, .card:focus-visible, .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 0 22px; min-height: 46px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 500; min-height: 36px; padding: 0 14px; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; color: var(--muted); font-size: 13px; }
+.opts label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chips .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.chip { font: inherit; font-family: var(--font-display); font-size: 15px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+.chip.live::after { content: " ↗"; color: var(--accent); font-family: var(--font-body); font-size: 12px; }
+.chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* Word header */
+.word-head { display: grid; gap: 8px; }
+.word-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+.word-line h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(40px, 7vw, 64px); line-height: 1.02; overflow-wrap: anywhere; }
+.word-line .wl-lang { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.headline { margin: 0; font-family: var(--font-display); font-style: italic; font-size: 20px; text-wrap: balance; }
+.summary { margin: 0; max-width: 72ch; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.pill.conf-established { color: var(--f-germanic); border-color: currentColor; }
+.pill.conf-probable { color: var(--accent); border-color: currentColor; }
+.pill.conf-disputed, .pill.conf-unknown { color: var(--warn); border-color: currentColor; }
+
+/* Main grid */
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+@media (max-width: 960px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+.stage { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: auto; min-height: 420px; max-height: 82vh; }
+.plane { position: relative; }
+.band { position: absolute; left: 0; right: 0; pointer-events: none; }
+.band-cap { position: absolute; left: 12px; transform: translateX(var(--sx, 0px)); font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--soil); pointer-events: none; }
+svg.edges { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+svg.edges path { fill: none; stroke-width: 2; }
+
+.card { position: absolute; width: 200px; background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px 11px; cursor: pointer; display: grid; gap: 2px; box-shadow: 0 1px 0 color-mix(in oklab, var(--ink) 8%, transparent); transition: border-color .15s, transform .15s; }
+.card:hover { transform: translateY(-1px); border-color: var(--fam); }
+.card.sel { border-color: var(--fam); box-shadow: 0 0 0 3px color-mix(in oklab, var(--fam) 28%, transparent); }
+.card.recon { border-style: dashed; }
+.card.unknown { border-style: dotted; background: repeating-linear-gradient(135deg, var(--surface) 0 7px, color-mix(in oklab, var(--warn) 9%, var(--surface)) 7px 9px); }
+.card.root-word { border-width: 2px; border-color: var(--ink); }
+.c-lang { font-family: var(--font-mono); font-size: 11px; color: var(--fam); display: flex; align-items: center; gap: 6px; line-height: 1.3; }
+.c-lang::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--fam); flex: none; }
+.c-form { font-family: var(--font-display); font-size: 23px; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+.card.recon .c-form { font-style: italic; font-weight: 400; }
+.c-tr { font-family: var(--font-display); font-style: italic; color: var(--muted); font-size: 14px; }
+.c-gloss { font-family: var(--font-display); font-size: 15px; line-height: 1.3; }
+.c-foot { display: flex; justify-content: space-between; gap: 6px; align-items: center; margin-top: 4px; }
+.c-period { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); }
+.c-kin { font-family: var(--font-mono); font-size: 10.5px; color: var(--fam); white-space: nowrap; }
+
+.elabel { position: absolute; transform: translate(-50%, -50%); font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); background: var(--surface); padding: 1px 6px; border-radius: 6px; white-space: nowrap; pointer-events: none; }
+.elabel.uncertain, .elabel.unknown { color: var(--warn); }
+
+.kin { position: absolute; width: 190px; display: grid; gap: 5px; }
+.kin .chip { font-size: 14px; text-align: left; border-radius: 8px; padding: 3px 9px; display: flex; flex-direction: column; line-height: 1.2; background: var(--bg); }
+.kin .chip small { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+.kin-cap { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+.grow .card, .grow .elabel { animation: rise .5s cubic-bezier(.2,.7,.2,1) backwards; animation-delay: calc(var(--d, 0) * 110ms); }
+@keyframes rise { from { opacity: 0; transform: translateY(-14px); } }
+@media (prefers-reduced-motion: reduce) { .grow .card, .grow .elabel { animation: none; } .card { transition: none; } }
+
+/* Digging overlay */
+.dig { position: absolute; inset: 0; background: color-mix(in oklab, var(--surface) 92%, transparent); display: grid; place-items: center; padding: 20px; z-index: 5; }
+.dig-box { width: min(440px, 100%); display: grid; gap: 12px; }
+.dig-title { font-family: var(--font-display); font-style: italic; font-size: 24px; margin: 0; }
+.dig-meta { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.dig-log { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; min-height: 60px; }
+.dig-log li { display: flex; gap: 10px; align-items: baseline; animation: rise .3s ease-out backwards; }
+.dig-log b { font-family: var(--font-display); font-size: 18px; }
+.dig-log span { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.spade { height: 3px; border-radius: 3px; background: linear-gradient(90deg, transparent, var(--soil), transparent); background-size: 50% 100%; background-repeat: no-repeat; animation: sweep 1.4s linear infinite; }
+@keyframes sweep { from { background-position: -50% 0; } to { background-position: 150% 0; } }
+@media (prefers-reduced-motion: reduce) { .spade { animation: none; background-position: 50% 0; } }
+
+.stage.busy { overflow: hidden; }
+.msg { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; z-index: 4; background: var(--surface); }
+.msg div { max-width: 46ch; display: grid; gap: 10px; justify-items: center; }
+.msg h3 { margin: 0; font-family: var(--font-display); font-size: 24px; }
+.msg p { margin: 0; color: var(--muted); }
+
+/* Detail rail */
+.rail { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 12px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); }
+@media (max-width: 960px) { .rail { position: static; } }
+.rail .r-lang { font-family: var(--font-mono); font-size: 12px; color: var(--fam); }
+.rail .r-form { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 1.1; margin: 0; overflow-wrap: anywhere; }
+.rail .r-form.recon { font-style: italic; font-weight: 400; }
+.rail .r-gloss { font-family: var(--font-display); font-size: 18px; margin: 0; }
+.rail dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13.5px; }
+.rail dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.rail dd { margin: 0; min-width: 0; }
+.rail .r-note { margin: 0; }
+.rail h4 { margin: 4px 0 0; font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.rel-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.rel-list button { font: inherit; width: 100%; text-align: left; background: none; border: 0; border-radius: 8px; padding: 5px 8px; cursor: pointer; color: var(--ink); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: baseline; }
+.rel-list button:hover { background: var(--bg); }
+.rel-list .rf { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+.rel-list .rg { font-family: var(--font-display); color: var(--muted); }
+.rel-list .rl { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); white-space: nowrap; }
+.cert { display: inline-flex; align-items: center; gap: 8px; }
+.cert svg { flex: none; }
+
+/* Lower sections */
+.lower { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.panel h3 { margin: 0; font-family: var(--font-display); font-size: 21px; }
+.drift { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.drift li { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding-block: 7px; border-top: 1px solid var(--line); }
+.drift li:first-child { border-top: 0; }
+.drift .dp { font-family: var(--font-mono); font-size: 12px; color: var(--soil); padding-top: 3px; }
+.drift .ds { font-family: var(--font-display); font-size: 17px; }
+.theory { display: grid; gap: 2px; padding-block: 6px; border-top: 1px solid var(--line); }
+.theory:first-of-type { border-top: 0; }
+.theory b { font-weight: 600; }
+.theory .st { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.myth s { color: var(--muted); }
+.legend { display: grid; gap: 8px; font-size: 13px; }
+.legend .row { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.legend .fam { display: inline-flex; align-items: center; gap: 6px; }
+.legend .fam i { width: 9px; height: 9px; border-radius: 50%; background: var(--fam); }
+.legend .ln { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+.foot { color: var(--muted); font-size: 13px; max-width: 80ch; margin: 0; }
+.foot b { color: var(--ink); font-weight: 600; }
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="brand">
+      <h1>Etymon<span class="ast">*</span>Tree</h1>
+      <p>Type a word in any language. Claude digs back through every form it has taken, layer by layer, to the oldest root scholars can trace.</p>
+    </div>
+    <div class="live-status" id="liveStatus" data-state="wait"><span class="dot"></span><span id="liveText">Connecting to Claude…</span></div>
+  </header>
+
+  <form class="search" id="searchForm" autocomplete="off">
+    <input id="wordInput" name="word" type="text" placeholder="salary, robot, Schadenfreude, 茶…" aria-label="Word to trace" spellcheck="false" maxlength="60">
+    <select id="langSelect" name="lang" aria-label="Language of the word">
+      <option value="">Detect language</option>
+      <option>English</option><option>French</option><option>Spanish</option><option>Italian</option><option>Portuguese</option>
+      <option>German</option><option>Dutch</option><option>Swedish</option><option>Greek</option><option>Russian</option>
+      <option>Polish</option><option>Hindi</option><option>Urdu</option><option>Persian</option><option>Arabic</option>
+      <option>Hebrew</option><option>Turkish</option><option>Japanese</option><option>Mandarin Chinese</option><option>Korean</option>
+      <option>Latin</option>
+    </select>
+    <button class="btn" id="traceBtn" type="submit">Trace</button>
+  </form>
+
+  <div class="opts">
+    <div class="chips" id="preChips"><span class="lbl">Preloaded</span></div>
+    <div class="chips" id="liveChips"><span class="lbl">Trace live</span></div>
+  </div>
+  <div class="opts">
+    <label><input type="checkbox" id="carefulBox"> Careful mode: use Claude's most capable model (slower)</label>
+    <div class="chips" id="recentChips" hidden><span class="lbl">Your recent</span></div>
+  </div>
+
+  <section class="word-head" id="wordHead" aria-live="polite"></section>
+
+  <div class="main">
+    <div class="stage" id="stage">
+      <div class="plane" id="plane"></div>
+    </div>
+    <aside class="rail" id="rail" aria-live="polite"></aside>
+  </div>
+
+  <div class="lower" id="lower"></div>
+
+  <p class="foot"><b>How to read it.</b> The searched word is at the top; each layer down is one step further into the past. Click a card for its details and to unfold its relatives, then click any relative to trace it in turn. Forms starting with * are reconstructed by linguists, never written down. Live traces come from Claude's own knowledge, not a dictionary lookup, so check the OED, Wiktionary or Etymonline before you cite one. Preloaded words were checked against Wiktionary.</p>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* ---------- vocab ---------- */
+const FAMILIES = {
+  pie: "Proto-Indo-European", germanic: "Germanic", italic: "Latin & Romance", hellenic: "Greek",
+  celtic: "Celtic", baltoslavic: "Balto-Slavic", indoiranian: "Indo-Iranian", semitic: "Semitic",
+  sinitic: "Sinitic", japonic: "Japonic", turkic: "Turkic", uralic: "Uralic", other: "Other"
+};
+function famKey(fam, lang) {
+  const s = (String(fam || "") + " " + String(lang || "")).toLowerCase();
+  const f = String(fam || "").toLowerCase();
+  const test = (t) => f.includes(t) || (!f && s.includes(t));
+  if (test("proto-indo-european") || /^pie\b/.test(f)) return "pie";
+  if (test("germanic") || test("english") || test("norse") || test("frankish") || test("gothic") || test("dutch") || test("german")) return "germanic";
+  if (test("italic") || test("romance") || test("latin") || test("french") || test("spanish") || test("italian") || test("portuguese") || test("norman")) return "italic";
+  if (test("hellenic") || test("greek")) return "hellenic";
+  if (test("celtic") || test("irish") || test("welsh") || test("gaulish")) return "celtic";
+  if (test("slav") || test("baltic") || test("russian") || test("lithuanian")) return "baltoslavic";
+  if (test("indo-iranian") || test("indic") || test("iranian") || test("sanskrit") || test("persian") || test("hindi")) return "indoiranian";
+  if (test("semitic") || test("arabic") || test("hebrew") || test("aramaic") || test("afro")) return "semitic";
+  if (test("sinitic") || test("sino") || test("chinese") || test("hokkien") || test("tibetan")) return "sinitic";
+  if (test("japon") || test("japanese")) return "japonic";
+  if (test("turkic") || test("turkish")) return "turkic";
+  if (test("uralic") || test("finn") || test("hungar")) return "uralic";
+  if (/proto-indo|indo-european/.test(s)) return "pie";
+  return "other";
+}
+const CERT = {
+  certain: "Textbook consensus.",
+  probable: "Widely accepted, with some doubt.",
+  uncertain: "One proposal among several.",
+  unknown: "No accepted source."
+};
+function certKey(c) { c = String(c || "").toLowerCase(); return CERT[c] ? c : (c.includes("prob") ? "probable" : c.includes("uncert") || c.includes("possib") || c.includes("disput") ? "uncertain" : c.includes("unknown") ? "unknown" : "certain"); }
+const LINKS = {
+  inherited: "inherited from", borrowed: "borrowed from", derived: "formed from", compound: "built from",
+  calque: "translated from", clipping: "shortened from", blend: "blended from", imitative: "imitating",
+  eponym: "named after", coined: "coined from", unknown: "origin unknown"
+};
+function linkLabel(n) {
+  const base = LINKS[n.link] || (n.link ? n.link + " from" : "from");
+  if (n.certainty === "probable" && n.link !== "unknown") return "probably " + base;
+  if (n.certainty === "uncertain" && n.link !== "unknown") return "possibly " + base;
+  return base;
+}
+const LINK_VERB = {
+  inherited: "came down from", borrowed: "was borrowed from", derived: "was formed from", compound: "was built partly from",
+  calque: "was translated piece by piece from", clipping: "was shortened from", blend: "was blended from",
+  imitative: "imitates", eponym: "is named after", coined: "was coined from", unknown: "has no known source:"
+};
+
+/* ---------- preloaded examples (checked against Wiktionary) ---------- */
+function N(form, lang, family, period, gloss, o = {}) {
+  return Object.assign({ form, lang, family, period, gloss, note: "", link: "inherited", certainty: "certain", reconstructed: form.startsWith("*"), translit: "", relatives: [], from: [] }, o);
+}
+const R = (form, lang, gloss = "") => ({ form, lang, gloss });
+
+const PRELOADED = {
+  salary: {
+    word: "salary", language: "English", confidence: "established",
+    headline: "Your paycheck is named after salt, though nobody knows exactly why.",
+    summary: "English took salary from the French of medieval England, which got it from Latin salārium, a stipend paid to Roman officials and soldiers. Salārium is built on sāl, 'salt', and sāl goes back to the Proto-Indo-European word for salt that also gave English salt itself. The link to salt is certain; the reason a salt word came to mean pay is not.",
+    drift: [],
+    theories: [],
+    myths: [{ claim: "Roman soldiers were paid in salt.", verdict: "No ancient source says so. Pliny the Elder connects the word salārium with salt, but how a 'salt' word came to mean a stipend is unknown." }],
+    tree: N("salary", "English", "Germanic", "today", "fixed regular pay for work", {
+      note: "English is a Germanic language, but most of its vocabulary for money and government arrived from French after 1066.",
+      from: [N("salarie", "Middle English", "Germanic", "c. 1300", "payment, reward", {
+        note: "Early uses cover payment or reward in general, not only a regular wage.",
+        from: [N("salarie", "Anglo-Norman", "Italic", "12th–13th c.", "wages, pay", {
+          link: "borrowed",
+          note: "The French spoken by England's rulers after the Norman Conquest passed thousands of words like this into English.",
+          from: [N("salaire", "Old French", "Italic", "12th c.", "wages, reward", {
+            link: "inherited",
+            note: "Continental French form. Modern French still says salaire.",
+            from: [N("salārium", "Latin", "Italic", "Classical Latin", "stipend, allowance", {
+              link: "borrowed",
+              note: "French took this as a learned word from written Latin. Words passed down in speech turned -ārium into -ier, as in premier and denier.",
+              from: [N("salārius", "Latin", "Italic", "Classical Latin", "of or for salt", {
+                link: "derived",
+                note: "Salārium is the neuter form of this adjective. A phrase *salārium argentum 'salt money' is often assumed but never attested. The Via Salaria, Rome's 'Salt Road', uses the same adjective.",
+                from: [N("sāl", "Latin", "Italic", "Old & Classical Latin", "salt; also wit", {
+                  link: "derived",
+                  note: "Built from sāl with the adjective suffix -ārius. Sāl could also mean wit: 'Attic salt' translates Latin sal Atticum.",
+                  relatives: [R("salad", "English", "from Vulgar Latin *salāta 'salted (greens)'"), R("sauce", "English", "from Latin salsa 'salted'"), R("sausage", "English", "from Late Latin salsīcia"), R("salami", "Italian", "salted, cured meats"), R("saline", "English", "salty"), R("sel", "French", "salt"), R("sal", "Spanish", "salt"), R("sale", "Italian", "salt")],
+                  from: [N("*séh₂ls", "Proto-Indo-European", "Proto-Indo-European", "c. 4500–2500 BCE", "salt", {
+                    note: "Reconstructed by comparing its descendants. Latin keeps the plain l-stem; Germanic added a -d- extension that became the t of English salt.",
+                    relatives: [R("salt", "English", "via Proto-Germanic *saltą"), R("Salz", "German", "salt"), R("ἅλς (háls)", "Ancient Greek", "salt; the sea"), R("соль (sol')", "Russian", "salt"), R("halen", "Welsh", "salt"), R("sāls", "Latvian", "salt"), R("աղ (ał)", "Old Armenian", "salt")]
+                  })]
+                })]
+              })]
+            })]
+          })]
+        })]
+      })]
+    })
+  },
+
+  nice: {
+    word: "nice", language: "English", confidence: "established",
+    headline: "Nice started out meaning 'ignorant' and took 500 years to become a compliment.",
+    summary: "Nice came into English from Old French, where it meant 'simple, foolish'. Behind that is Latin nescius, 'not knowing', from ne- 'not' and scīre 'to know'. Over the centuries the English word drifted from foolish to fussy, to precise, to pleasant, and finally to kind.",
+    drift: [
+      { period: "c. 1300", sense: "foolish, simple, ignorant" },
+      { period: "late 14th c.", sense: "fussy, fastidious, hard to please" },
+      { period: "16th c.", sense: "precise, finely drawn (a nice distinction)" },
+      { period: "18th c.", sense: "pleasant, agreeable" },
+      { period: "19th c.", sense: "kind, considerate" }
+    ],
+    theories: [], myths: [],
+    tree: N("nice", "English", "Germanic", "today", "pleasant; kind", {
+      from: [N("nice", "Middle English", "Germanic", "c. 1300", "foolish, simple, ignorant", {
+        note: "The spelling has barely changed in 700 years; the meaning has turned almost upside down. See Meaning over time.",
+        from: [N("nice", "Old French", "Italic", "12th c.", "simple, foolish, silly", {
+          link: "borrowed",
+          from: [N("nescius", "Latin", "Italic", "Classical Latin", "ignorant, not knowing", {
+            note: "Passed down in everyday speech into French, wearing down to nice along the way.",
+            relatives: [R("nescience", "English", "lack of knowledge")],
+            from: [
+              N("ne-", "Latin", "Italic", "Old Latin", "not", {
+                link: "compound",
+                from: [N("*ne", "Proto-Indo-European", "Proto-Indo-European", "c. 4500–2500 BCE", "not", {
+                  note: "The basic negative word of Proto-Indo-European. Its zero-grade form *n̥- gave English un- and Greek a(n)-.",
+                  relatives: [R("no", "English"), R("not", "English"), R("un-", "English", "from the zero-grade *n̥-"), R("nōn", "Latin", "not"), R("न (ná)", "Sanskrit", "not"), R("ἀ- (a-)", "Ancient Greek", "not, un-")]
+                })]
+              }),
+              N("scīre", "Latin", "Italic", "Classical Latin", "to know", {
+                link: "compound",
+                relatives: [R("science", "English"), R("conscious", "English"), R("conscience", "English"), R("omniscient", "English", "all-knowing")],
+                from: [N("*skey-", "Proto-Indo-European", "Proto-Indo-European", "c. 4500–2500 BCE", "to cut, split", {
+                  certainty: "uncertain",
+                  note: "Often linked to a root meaning 'to cut, separate', on the idea that knowing means telling things apart. The connection is widely repeated but not settled."
+                })]
+              })
+            ]
+          })]
+        })]
+      })]
+    })
+  },
+
+  companion: {
+    word: "companion", language: "English", confidence: "established",
+    headline: "A companion is, quite literally, someone you share bread with.",
+    summary: "Companion comes through Old French from Late Latin compāniō, 'messmate', made of com- 'with' and pānis 'bread'. The Latin word first shows up in a Frankish law code and is probably a word-for-word translation of a Germanic term built the same way, whose 'bread' part is related to English loaf.",
+    drift: [], theories: [], myths: [],
+    tree: N("companion", "English", "Germanic", "today", "a person you spend time with", {
+      note: "It displaced the native Old English ġefēra, literally 'fellow traveller'.",
+      from: [N("companion", "Middle English", "Germanic", "c. 1300", "comrade, fellow", {
+        from: [N("compaignon", "Old French", "Italic", "11th–12th c.", "companion, comrade", {
+          link: "borrowed",
+          note: "The object form. The subject form compain survives in modern French copain, 'pal'.",
+          relatives: [R("company", "English", "via Old French compaignie"), R("compagnon", "French", "companion"), R("compañero", "Spanish", "companion"), R("compagno", "Italian", "companion")],
+          from: [N("compāniō", "Late Latin", "Italic", "early 6th c.", "messmate, one who shares your bread", {
+            note: "First seen in the Lex Salica, the law code of the Franks.",
+            from: [
+              N("com-", "Latin", "Italic", "Classical Latin", "with, together", {
+                link: "compound",
+                relatives: [R("combine", "English"), R("compose", "English"), R("connect", "English", "con- is the same prefix")],
+                from: [N("*ḱóm", "Proto-Indo-European", "Proto-Indo-European", "c. 4500–2500 BCE", "beside, with", { certainty: "probable" })]
+              }),
+              N("pānis", "Latin", "Italic", "Classical Latin", "bread", {
+                link: "compound",
+                relatives: [R("pantry", "English", "originally a bread room"), R("pain", "French", "bread"), R("pan", "Spanish", "bread"), R("pane", "Italian", "bread"), R("pão", "Portuguese", "bread")],
+                from: [N("*peh₂-", "Proto-Indo-European", "Proto-Indo-European", "c. 4500–2500 BCE", "to protect; to feed", {
+                  certainty: "probable",
+                  note: "Usually traced through an earlier *pāstnis. The same root is behind Latin pāscere 'to graze, feed' and, through Germanic, English food.",
+                  relatives: [R("food", "English", "via Proto-Germanic *fōdô"), R("fodder", "English"), R("pasture", "English", "via Latin pāstūra"), R("pastor", "English", "a shepherd, via Latin")]
+                })]
+              }),
+              N("*gahlaibō", "Frankish", "Germanic", "before 6th c.", "messmate (lit. 'with-bread')", {
+                link: "calque", certainty: "probable",
+                note: "Probably the model for compāniō: ga- 'together' + hlaib 'bread', translated part for part into Latin.",
+                relatives: [R("loaf", "English", "from Old English hlāf"), R("Laib", "German", "a loaf"), R("gahlaiba", "Gothic", "messmate")]
+              })
+            ]
+          })]
+        })]
+      })]
+    })
+  },
+
+  tea: {
+    word: "tea", language: "English", confidence: "established",
+    headline: "Tea arrived by sea and chai by land, and both are the same Chinese word.",
+    summary: "English got tea in the 1650s from Dutch thee. Dutch traders bought their tea in Amoy (Xiamen), where the Hokkien name was tê. Most of the world says some form of cha instead, from the pronunciation used in other Chinese varieties, which spread overland and through Portuguese trade.",
+    drift: [],
+    theories: [],
+    myths: [{ claim: "Chai and tea are unrelated words.", verdict: "Both come from the same Chinese word 茶. Tea reflects the Hokkien pronunciation carried by Dutch ships; chai reflects the cha pronunciation carried overland through Persian and Hindi." }],
+    tree: N("tea", "English", "Germanic", "c. 1655", "the drink; the plant Camellia sinensis", {
+      note: "Early spellings include tee and tay, which matched the Dutch pronunciation.",
+      from: [N("thee", "Dutch", "Germanic", "17th c.", "tea", {
+        link: "borrowed",
+        note: "The Dutch East India Company supplied Europe's first tea. Its word spread with it across western and northern Europe.",
+        relatives: [R("thé", "French"), R("Tee", "German"), R("té", "Spanish"), R("tè", "Italian"), R("te", "Swedish")],
+        from: [N("茶", "Hokkien (Southern Min)", "Sinitic", "17th c., Amoy", "tea", {
+          translit: "tê", link: "borrowed",
+          note: "Southern Min kept a t- sound where most Chinese varieties developed ch-. That is why sea-trade languages say te.",
+          relatives: [R("teh", "Malay", "tea")],
+          from: [N("茶", "Chinese", "Sinitic", "standard by the Tang dynasty (618–907)", "tea", {
+            note: "Older texts wrote the word with 荼, a character also used for bitter plants. The one-stroke-shorter 茶 became the standard tea character during the Tang dynasty.",
+            relatives: [R("茶 (chá)", "Mandarin", "tea"), R("chá", "Portuguese", "via Macau"), R("chai", "English", "via Hindi and Persian"), R("चाय (chāy)", "Hindi"), R("чай (chay)", "Russian"), R("çay", "Turkish"), R("شاي (shāy)", "Arabic"), R("茶 (cha)", "Japanese")],
+            from: [N("*s-la", "Proto-Sino-Tibetan", "Sinitic", "deep prehistory", "leaf", {
+              certainty: "uncertain",
+              note: "Some scholars connect the Chinese word with a Sino-Tibetan root for 'leaf'. The deep history of Sino-Tibetan is far less settled than that of Indo-European."
+            })]
+          })]
+        })]
+      })]
+    })
+  },
+
+  dog: {
+    word: "dog", language: "English", confidence: "unknown",
+    headline: "One of the commonest words in English has no known ancestor.",
+    summary: "Dog goes back to a rare late Old English word, docga, and then the trail stops. The normal Old English word was hund (hound). Dog first named a stocky breed like a mastiff and only became the general word in the 1500s. Several origins have been proposed; none is accepted.",
+    drift: [
+      { period: "late Old English", sense: "a (powerful) dog; rare" },
+      { period: "14th c.", sense: "a stocky breed, like a mastiff" },
+      { period: "16th c.", sense: "any domestic dog; hound narrows to hunting dogs" }
+    ],
+    theories: [
+      { title: "A pet-name word", detail: "Old English had a small group of animal words ending in -cga/-gga, such as frocga 'frog' and *picga 'pig'. Dog may belong to this group, built on an unclear base, perhaps dox 'dark, swarthy'.", standing: "minority" },
+      { title: "'The useful one'", detail: "From Proto-West Germanic *dugan 'to be fit, be good for' (German taugen), as a nickname for a good, useful animal.", standing: "minority" },
+      { title: "'Thickset'", detail: "Related to Old English *docce 'stock, muscle', as in dock, a stumpy tail, describing a heavy-built breed.", standing: "minority" }
+    ],
+    myths: [{ claim: "Dog is related to the Australian Mbabaram word dog, which also means dog.", verdict: "A famous coincidence. The two words developed independently." }],
+    tree: N("dog", "English", "Germanic", "today", "the domestic canine", {
+      from: [N("dogge", "Middle English", "Germanic", "14th c.", "a stocky dog, like a mastiff", {
+        note: "Hound was still the general word. Several continental languages borrowed dog in the 1500s to mean 'mastiff'.",
+        relatives: [R("dug", "Scots", "dog"), R("Dogge", "German", "mastiff, from English"), R("dogue", "French", "mastiff, from English")],
+        from: [N("docga", "Old English", "Germanic", "late Old English", "a (powerful) dog", {
+          note: "A rare word in Old English texts, which normally use hund.",
+          from: [N("?", "origin unknown", "Other", "", "", {
+            link: "unknown", certainty: "unknown",
+            note: "No accepted source. See Competing theories below."
+          })]
+        })]
+      })]
+    })
+  }
+};
+
+const LIVE_SUGGEST = ["muscle", "disaster", "robot", "avocado", "algebra", "quarantine", "Schadenfreude", "boss"];
+
+/* ---------- normalize any result (preloaded or live) ---------- */
+const str = (v, max = 700) => typeof v === "string" ? v.trim().slice(0, max) : typeof v === "number" ? String(v) : "";
+const arr = (v) => Array.isArray(v) ? v : [];
+function normalize(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { error: "Claude's answer was not in the expected shape." };
+  if (raw.error && !raw.tree) return { error: str(raw.error) || "Not a word Claude recognises." };
+  const ctx = { count: 0 };
+  const tree = normNode(raw.tree, 0, ctx);
+  if (!tree) return { error: "Claude's answer had no tree in it." };
+  const conf = String(raw.confidence || "").toLowerCase();
+  return {
+    word: str(raw.word, 80) || tree.form,
+    language: str(raw.language, 60) || tree.lang,
+    headline: str(raw.headline, 200),
+    summary: str(raw.summary, 1400),
+    confidence: ["established", "probable", "disputed", "unknown"].includes(conf) ? conf : "probable",
+    tree,
+    drift: arr(raw.drift).map(d => ({ period: str(d && d.period, 60), sense: str(d && d.sense, 200) })).filter(d => d.sense).slice(0, 10),
+    theories: arr(raw.theories).map(t => ({ title: str(t && t.title, 120), detail: str(t && t.detail, 600), standing: str(t && t.standing, 30).toLowerCase() })).filter(t => t.title || t.detail).slice(0, 6),
+    myths: arr(raw.myths).map(m => ({ claim: str(m && m.claim, 300), verdict: str(m && m.verdict, 500) })).filter(m => m.claim).slice(0, 4)
+  };
+}
+function normNode(n, depth, ctx) {
+  if (!n || typeof n !== "object" || depth > 14 || ctx.count >= 32) return null;
+  ctx.count++;
+  const form = str(n.form, 80) || "?";
+  const node = {
+    id: "n" + ctx.count, depth,
+    form, translit: str(n.translit, 80),
+    lang: str(n.lang, 80) || (form === "?" ? "origin unknown" : "Unknown language"),
+    family: famKey(n.family, n.lang),
+    period: str(n.period, 80), gloss: str(n.gloss, 160), note: str(n.note, 700),
+    link: str(n.link, 30).toLowerCase() || "inherited",
+    certainty: certKey(n.certainty),
+    reconstructed: n.reconstructed === true || form.startsWith("*"),
+    relatives: arr(n.relatives).map(r => r && ({ form: str(r.form, 80), lang: str(r.lang, 60), gloss: str(r.gloss, 120) })).filter(r => r && r.form).slice(0, 10),
+    from: []
+  };
+  if (form === "?") { node.certainty = "unknown"; node.link = "unknown"; }
+  if (node.translit && node.translit === node.form) node.translit = "";
+  node.from = arr(n.from).map(c => normNode(c, depth + 1, ctx)).filter(Boolean);
+  return node;
+}
+
+/* ---------- the prompt ---------- */
+function buildPrompt(word, lang) {
+  return `You are a careful historical linguist preparing data for an interactive etymology tree. Trace where this word came from.
+
+WORD: ${JSON.stringify(word)}
+LANGUAGE: ${lang ? lang : "not given. Detect it; if the word exists in English, assume English."}
+
+ACCURACY RULES (the most important part)
+1. Follow mainstream scholarship as found in standard references (OED, Merriam-Webster, Wiktionary, Etymonline, Trésor de la langue française, Kluge for German, de Vaan for Latin, Beekes for Greek, Kroonen for Proto-Germanic, LIV and Mallory & Adams for Proto-Indo-European, and the standard dictionaries of the word's own language). Never invent a form, meaning, date or root. If you are not confident a step is real, end the chain before it.
+2. Rate every link in "certainty": "certain" (textbook consensus), "probable" (widely accepted, some doubt), "uncertain" (one proposal among several), "unknown" (no accepted source). When the origin is unknown or disputed, end that branch with a node whose form is "?" and certainty "unknown", set "confidence" to "disputed" or "unknown", and describe each serious proposal in "theories".
+3. Reconstructed (unattested) forms start with "*" and have "reconstructed": true. Use standard notation with laryngeals for Proto-Indo-European (e.g. *séh₂ls, *ḱwṓ, *méh₂tēr). Only reach back to a proto-language when the connection is accepted.
+4. "link" says how the node directly ABOVE came from this node: "inherited" (same language line, earlier stage), "borrowed" (taken from another language), "derived" (formed from this with an affix or by conversion), "compound" (this is one part of a compound or affixed word), "calque" (loan translation), "clipping", "blend", "imitative", "eponym" (from a name), "coined" (deliberate invention), "unknown".
+5. For compounds, blends and affixed words, give each meaningful part its own branch in "from".
+6. Folk etymologies and popular false stories never go in the tree. Put them in "myths" with the real verdict.
+7. Periods are approximate: first attestation ("c. 1300", "1650s", "17th c.") or the language's period ("c. 4500–2500 BCE").
+8. "relatives" are real words descended from THAT exact node: sister words in the searched word's language, and cognates or descendants in other languages. No look-alikes. Prefer well-known words. Put relatives on the 2 to 4 nodes where they are most interesting; other nodes get [].
+9. Glosses are short English meanings without quotation marks. Notes are one or two plain sentences of real substance (sound change, sense shift, how and when the borrowing happened). Write for a curious general reader.
+10. For words in non-Latin scripts, "form" is the native script and "translit" a standard romanization.
+
+SIZE: at most 16 nodes in the whole tree and at most 8 relatives per node. Keep every string short.
+
+If the input is not a word or name in any language you know, reply {"error": "one short sentence saying why"}.
+
+Reply with ONLY this JSON, no prose and no code fence:
+{
+ "word": "...",
+ "language": "the word's language, e.g. English",
+ "headline": "one vivid, accurate sentence of at most 100 characters",
+ "summary": "2 to 4 sentences telling the word's story",
+ "confidence": "established" | "probable" | "disputed" | "unknown",
+ "tree": NODE,
+ "drift": [{"period": "...", "sense": "..."}],
+ "theories": [{"title": "...", "detail": "...", "standing": "favored" | "minority" | "rejected"}],
+ "myths": [{"claim": "...", "verdict": "..."}]
+}
+"drift" lists notable meaning changes oldest first ([] if none). "theories" is [] when the etymology is settled. "myths" is [] if there are none.
+NODE = {
+ "form": "...", "translit": "",
+ "lang": "precise language or stage, e.g. Middle English, Anglo-Norman, Late Latin, Proto-Germanic",
+ "family": "Germanic" | "Italic" | "Hellenic" | "Celtic" | "Balto-Slavic" | "Indo-Iranian" | "Proto-Indo-European" | "Semitic" | "Sinitic" | "Japonic" | "Turkic" | "Uralic" | "Other",
+ "period": "...", "gloss": "...", "note": "...",
+ "link": "...", "certainty": "...", "reconstructed": false,
+ "relatives": [{"form": "...", "lang": "...", "gloss": "..."}],
+ "from": [NODE, ...]
+}
+"family" is the branch the node's language belongs to (Latin and the Romance languages are "Italic"; Proto-Indo-European itself is "Proto-Indo-European"). The top "tree" node is the searched word itself, with link "inherited" and certainty "certain". "from" holds the immediate source or sources and is [] at the oldest node.
+
+Shape example, abbreviated: for English "mother", tree = mother (English) <- from [mōdor (Old English, inherited)] <- from [*mōdēr (Proto-Germanic, inherited, reconstructed)] <- from [*méh₂tēr (Proto-Indo-European, inherited, reconstructed, gloss mother, relatives: māter (Latin), μήτηρ (Ancient Greek, translit mḗtēr), मातृ (Sanskrit, translit mātṛ́), Mutter (German))].`;
+}
+
+/* ---------- state ---------- */
+const $ = (id) => document.getElementById(id);
+const stage = $("stage"), plane = $("plane"), rail = $("rail"), lower = $("lower"), wordHead = $("wordHead");
+const state = { data: null, source: "preloaded", selected: null, expanded: new Set(), nodes: [] };
+let sample = null, liveOff = false, ctl = null, digTimer = null;
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function famVar(k) { return `var(--f-${k})`; }
+const store = {
+  get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const cacheKey = (w, l, tier) => "etymon:v1:" + tier + ":" + (l || "auto") + ":" + w.toLowerCase();
+
+/* ---------- tree layout ---------- */
+const CARD_W = 200, KIN_W = 190, KIN_GAP = 26, GAP_X = 30, EDGE_GAP = 78, PAD = 36, TOP = 34;
+
+function flatten(root) { const out = []; (function walk(n) { out.push(n); n.from.forEach(walk); })(root); return out; }
+
+function renderTree(animate) {
+  const data = state.data; if (!data) return;
+  plane.textContent = "";
+  plane.classList.toggle("grow", !!animate);
+  const nodes = flatten(data.tree);
+  state.nodes = nodes;
+  const bandLayer = el("div"); plane.append(bandLayer);
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"); svg.setAttribute("class", "edges"); plane.append(svg);
+
+  for (const n of nodes) {
+    const c = el("div", "card");
+    c.tabIndex = 0; c.setAttribute("role", "button");
+    c.style.setProperty("--fam", famVar(n.family));
+    c.style.setProperty("--d", n.depth);
+    if (n.reconstructed) c.classList.add("recon");
+    if (n.certainty === "unknown") c.classList.add("unknown");
+    if (n.depth === 0) c.classList.add("root-word");
+    if (state.selected === n.id) c.classList.add("sel");
+    c.append(el("div", "c-lang", n.lang));
+    c.append(el("div", "c-form", n.form));
+    if (n.translit) c.append(el("div", "c-tr", n.translit));
+    if (n.gloss) c.append(el("div", "c-gloss", "‘" + n.gloss + "’"));
+    const foot = el("div", "c-foot");
+    foot.append(el("span", "c-period", n.period));
+    if (n.relatives.length) foot.append(el("span", "c-kin", (state.expanded.has(n.id) ? "− " : "+ ") + n.relatives.length + " kin"));
+    c.append(foot);
+    c.setAttribute("aria-label", `${n.form}, ${n.lang}${n.gloss ? ", meaning " + n.gloss : ""}${n.period ? ", " + n.period : ""}. Show details.`);
+    c.addEventListener("click", () => selectNode(n));
+    c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectNode(n); } });
+    plane.append(c);
+    n._el = c;
+    n._kin = null;
+    if (state.expanded.has(n.id) && n.relatives.length) {
+      const k = el("div", "kin");
+      k.append(el("div", "kin-cap", "Relatives"));
+      for (const r of n.relatives.slice(0, 8)) {
+        const b = el("button", "chip"); b.type = "button";
+        b.append(document.createTextNode(r.form));
+        b.append(el("small", null, r.lang + (r.gloss ? " · " + r.gloss : "")));
+        b.title = "Trace " + r.form;
+        b.addEventListener("click", (e) => { e.stopPropagation(); traceRelative(r); });
+        k.append(b);
+      }
+      plane.append(k);
+      n._kin = k;
+    }
+  }
+
+  // measure
+  const rowH = [];
+  for (const n of nodes) {
+    n.h = n._el.offsetHeight;
+    n.kh = n._kin ? n._kin.offsetHeight : 0;
+    rowH[n.depth] = Math.max(rowH[n.depth] || 0, n.h, n.kh);
+  }
+  const rowTop = [TOP];
+  for (let d = 1; d < rowH.length; d++) rowTop[d] = rowTop[d - 1] + rowH[d - 1] + EDGE_GAP;
+
+  (function measureW(n) {
+    n.boxW = CARD_W + (n._kin ? KIN_GAP + KIN_W : 0);
+    let s = 0;
+    n.from.forEach((c, i) => { s += measureW(c) + (i ? GAP_X : 0); });
+    n.childW = s;
+    n.subW = Math.max(n.boxW, s);
+    return n.subW;
+  })(data.tree);
+
+  const stageW = stage.clientWidth;
+  const contentW = data.tree.subW;
+  const left0 = Math.max(PAD, (stageW - contentW) / 2);
+  (function place(n, left) {
+    if (n.from.length) {
+      let x = left + (n.subW - n.childW) / 2;
+      n.from.forEach((c) => { place(c, x); x += c.subW + GAP_X; });
+      const center = (n.from[0].cx + n.from[n.from.length - 1].cx) / 2;
+      n.x = Math.min(Math.max(center - CARD_W / 2, left), left + n.subW - n.boxW);
+    } else {
+      n.x = left + (n.subW - n.boxW) / 2;
+    }
+    n.cx = n.x + CARD_W / 2;
+    n.y = rowTop[n.depth];
+  })(data.tree, left0);
+
+  const W = Math.max(stageW, contentW + left0 + PAD);
+  const H = rowTop[rowTop.length - 1] + rowH[rowH.length - 1] + PAD + 10;
+  plane.style.width = W + "px"; plane.style.height = H + "px";
+  svg.setAttribute("width", W); svg.setAttribute("height", H);
+
+  // strata
+  const depthN = rowH.length;
+  for (let d = 0; d < depthN; d++) {
+    const top = d === 0 ? 0 : rowTop[d] - EDGE_GAP / 2;
+    const bottom = d === depthN - 1 ? H : rowTop[d + 1] - EDGE_GAP / 2;
+    const b = el("div", "band");
+    const pct = depthN > 1 ? Math.round(2 + (d / (depthN - 1)) * 16) : 2;
+    b.style.top = top + "px"; b.style.height = (bottom - top) + "px";
+    b.style.background = `color-mix(in oklab, var(--soil) ${pct}%, transparent)`;
+    bandLayer.append(b);
+  }
+  const capTop = el("div", "band-cap", "Today ↓ into the past"); capTop.style.top = "10px"; bandLayer.append(capTop);
+  if (depthN > 2) { const capB = el("div", "band-cap", "Deepest traceable layer"); capB.style.top = (H - 24) + "px"; bandLayer.append(capB); }
+
+  // place cards, edges
+  for (const n of nodes) {
+    n._el.style.left = n.x + "px"; n._el.style.top = n.y + "px";
+    if (n._kin) {
+      const kx = n.x + CARD_W + KIN_GAP;
+      n._kin.style.left = kx + "px"; n._kin.style.top = n.y + "px";
+      for (const chip of n._kin.querySelectorAll(".chip")) {
+        const y2 = n.y + chip.offsetTop + chip.offsetHeight / 2;
+        const y1 = n.y + Math.min(26, n.h / 2);
+        addPath(svg, `M${n.x + CARD_W} ${y1} C${n.x + CARD_W + 14} ${y1} ${kx - 14} ${y2} ${kx} ${y2}`, famVar(n.family), "certain", 0.55, 1.2);
+      }
+    }
+    for (const c of n.from) {
+      const x1 = n.cx, y1 = n.y + n.h, x2 = c.cx, y2 = c.y;
+      const my = (y1 + y2) / 2;
+      addPath(svg, `M${x1} ${y1} C${x1} ${my} ${x2} ${my} ${x2} ${y2}`, famVar(c.family), c.certainty, 0.85, 2);
+      const lab = el("div", "elabel " + c.certainty, linkLabel(c));
+      // sit the label on the curve nearer the older node, so sibling labels spread apart
+      const t = n.from.length > 1 ? 0.72 : 0.5, u = 1 - t;
+      const lx = x1 * (u * u * u + 3 * u * u * t) + x2 * (3 * u * t * t + t * t * t);
+      const ly = y1 * u * u * u + my * 3 * u * u * t + my * 3 * u * t * t + y2 * t * t * t;
+      lab.style.left = lx + "px"; lab.style.top = ly + "px";
+      lab.style.setProperty("--d", c.depth - 0.5);
+      plane.append(lab);
+    }
+  }
+}
+function addPath(svg, d, color, cert, opacity, width) {
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", d);
+  p.setAttribute("stroke", color);
+  p.setAttribute("stroke-width", width);
+  p.setAttribute("stroke-opacity", opacity);
+  if (cert === "probable") p.setAttribute("stroke-dasharray", "9 5");
+  if (cert === "uncertain") p.setAttribute("stroke-dasharray", "2 5");
+  if (cert === "unknown") { p.setAttribute("stroke-dasharray", "1 6"); p.setAttribute("stroke-linecap", "round"); }
+  svg.append(p);
+}
+
+function findNode(id) { return state.nodes.find(n => n.id === id) || null; }
+function parentOf(id) { return state.nodes.find(n => n.from.some(c => c.id === id)) || null; }
+
+function selectNode(n) {
+  if (state.selected === n.id && n.relatives.length) {
+    if (state.expanded.has(n.id)) state.expanded.delete(n.id); else state.expanded.add(n.id);
+  } else {
+    state.selected = n.id;
+    if (n.relatives.length) state.expanded.add(n.id);
+  }
+  const sl = stage.scrollLeft, st = stage.scrollTop;
+  renderTree(false);
+  stage.scrollLeft = sl; stage.scrollTop = st;
+  renderRail();
+  const fresh = findNode(n.id); if (fresh && fresh._el) fresh._el.focus({ preventScroll: true });
+}
+
+/* ---------- side rail ---------- */
+function certIcon(cert) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("width", "34"); s.setAttribute("height", "8");
+  addPath(s, "M1 4 L33 4", "var(--ink)", cert, 0.8, 2);
+  return s;
+}
+function renderRail() {
+  rail.textContent = "";
+  const n = findNode(state.selected) || state.data.tree;
+  rail.style.setProperty("--fam", famVar(n.family));
+  rail.append(el("div", "r-lang", n.lang + " · " + FAMILIES[n.family]));
+  const f = el("h3", "r-form" + (n.reconstructed ? " recon" : ""), n.form); rail.append(f);
+  if (n.translit) rail.append(el("div", "c-tr", n.translit));
+  if (n.gloss) rail.append(el("p", "r-gloss", "‘" + n.gloss + "’"));
+  const dl = el("dl");
+  const row = (k, v) => { if (!v) return; dl.append(el("dt", null, k)); const dd = el("dd"); if (typeof v === "string") dd.textContent = v; else dd.append(v); dl.append(dd); };
+  row("When", n.period);
+  const p = parentOf(n.id);
+  if (p) row("Link", `${p.form} (${p.lang}) ${LINK_VERB[n.link] || "came from"} ${n.form === "?" ? "an unknown source" : "this"}.`);
+  if (n.depth > 0) {
+    const cs = el("span", "cert"); cs.append(certIcon(n.certainty)); cs.append(document.createTextNode(n.certainty[0].toUpperCase() + n.certainty.slice(1) + ". " + CERT[n.certainty]));
+    row("Certainty", cs);
+  }
+  if (n.reconstructed) row("Form", "Reconstructed by comparing descendant languages. Never written down.");
+  rail.append(dl);
+  if (n.note) rail.append(el("p", "r-note", n.note));
+  if (n.relatives.length) {
+    rail.append(el("h4", null, n.depth === 0 ? "Related words" : "Words descended from " + n.form));
+    const ul = el("ul", "rel-list");
+    for (const r of n.relatives) {
+      const li = el("li"), b = el("button"); b.type = "button";
+      const left = el("span"); left.append(el("span", "rf", r.form)); if (r.gloss) { left.append(document.createTextNode(" ")); left.append(el("span", "rg", r.gloss)); }
+      b.append(left); b.append(el("span", "rl", r.lang + " ↗"));
+      b.title = "Trace " + r.form;
+      b.addEventListener("click", () => traceRelative(r));
+      li.append(b); ul.append(li);
+    }
+    rail.append(ul);
+  }
+  if (n.depth === 0 && !n.relatives.length && !n.note) rail.append(el("p", "foot", "Click any card in the tree to read about that ancestor."));
+}
+
+/* ---------- header + lower panels ---------- */
+function renderHead() {
+  const d = state.data;
+  wordHead.textContent = "";
+  const line = el("div", "word-line");
+  line.append(el("h2", null, d.word));
+  line.append(el("span", "wl-lang", d.language));
+  wordHead.append(line);
+  if (d.headline) wordHead.append(el("p", "headline", d.headline));
+  const badges = el("div", "badges");
+  const confText = { established: "Etymology established", probable: "Etymology probable", disputed: "Etymology disputed", unknown: "Origin unknown" }[d.confidence];
+  badges.append(el("span", "pill conf-" + d.confidence, confText));
+  badges.append(el("span", "pill", state.source === "preloaded" ? "Preloaded · checked against Wiktionary" : state.source === "cached" ? "Traced by Claude · saved in this browser" : "Traced live by Claude"));
+  if (state.source !== "preloaded") {
+    const again = el("button", "btn ghost", "Ask again"); again.type = "button";
+    again.addEventListener("click", () => trace(d.word, state.lastLang || "", { refresh: true }));
+    badges.append(again);
+  }
+  wordHead.append(badges);
+  if (d.summary) wordHead.append(el("p", "summary", d.summary));
+}
+function renderLower() {
+  const d = state.data;
+  lower.textContent = "";
+  if (d.drift.length) {
+    const p = el("section", "panel"); p.append(el("h3", null, "Meaning over time"));
+    const ul = el("ul", "drift");
+    for (const x of d.drift) { const li = el("li"); li.append(el("span", "dp", x.period)); li.append(el("span", "ds", x.sense)); ul.append(li); }
+    p.append(ul); lower.append(p);
+  }
+  if (d.theories.length) {
+    const p = el("section", "panel"); p.append(el("h3", null, "Competing theories"));
+    for (const t of d.theories) {
+      const div = el("div", "theory");
+      if (t.standing) div.append(el("span", "st", t.standing));
+      if (t.title) div.append(el("b", null, t.title));
+      if (t.detail) div.append(el("span", null, t.detail));
+      p.append(div);
+    }
+    lower.append(p);
+  }
+  if (d.myths.length) {
+    const p = el("section", "panel"); p.append(el("h3", null, "Popular myths"));
+    for (const m of d.myths) {
+      const div = el("div", "theory myth");
+      div.append(el("s", null, m.claim));
+      div.append(el("span", null, m.verdict));
+      p.append(div);
+    }
+    lower.append(p);
+  }
+  // legend
+  const p = el("section", "panel"); p.append(el("h3", null, "Key"));
+  const lg = el("div", "legend");
+  const fams = [...new Set(state.nodes.map(n => n.family))];
+  const r1 = el("div", "row");
+  for (const k of fams) { const s = el("span", "fam"); s.style.setProperty("--fam", famVar(k)); s.append(el("i")); s.append(document.createTextNode(FAMILIES[k])); r1.append(s); }
+  lg.append(r1);
+  const r2 = el("div", "row");
+  for (const c of ["certain", "probable", "uncertain", "unknown"]) { const s = el("span", "ln"); s.append(certIcon(c)); s.append(document.createTextNode(c)); r2.append(s); }
+  lg.append(r2);
+  lg.append(el("span", "foot", "Dashed card: reconstructed form. Hatched card: the trail goes cold."));
+  p.append(lg); lower.append(p);
+}
+
+function show(data, source, lang) {
+  state.data = data; state.source = source; state.lastLang = lang || "";
+  state.selected = data.tree.id; state.expanded = new Set();
+  clearOverlay();
+  renderHead();
+  renderTree(true);
+  renderRail();
+  renderLower();
+  stage.scrollTop = 0;
+  stage.scrollLeft = Math.max(0, (plane.offsetWidth - stage.clientWidth) / 2);
+  plane.style.setProperty("--sx", stage.scrollLeft + "px");
+  document.querySelectorAll("#preChips .chip").forEach(c => c.classList.toggle("on", source === "preloaded" && c.dataset.w === data.word));
+}
+
+/* ---------- overlays ---------- */
+function clearOverlay() { stage.querySelectorAll(".dig, .msg").forEach(x => x.remove()); stage.classList.remove("busy"); clearInterval(digTimer); }
+function coverStage() { stage.scrollTo(0, 0); stage.classList.add("busy"); }
+function cancelInflight() { if (ctl) { const c = ctl; ctl = null; c.abort(); } }
+function showMessage(title, body, actions = []) {
+  clearOverlay();
+  const m = el("div", "msg"), box = el("div");
+  box.append(el("h3", null, title)); box.append(el("p", null, body));
+  for (const [label, fn] of actions) { const b = el("button", "btn ghost", label); b.type = "button"; b.addEventListener("click", fn); box.append(b); }
+  m.append(box); coverStage(); stage.append(m);
+}
+function showDig(word, careful) {
+  clearOverlay();
+  const d = el("div", "dig"), box = el("div", "dig-box");
+  box.append(el("p", "dig-title", "Digging into “" + word + "”…"));
+  box.append(el("div", "spade"));
+  const meta = el("div", "dig-meta", "Waiting for Claude"); box.append(meta);
+  const log = el("ul", "dig-log"); box.append(log);
+  const stop = el("button", "btn ghost", "Stop"); stop.type = "button";
+  stop.addEventListener("click", () => { cancelInflight(); clearOverlay(); });
+  box.append(stop);
+  d.append(box); coverStage(); stage.append(d);
+  const t0 = Date.now();
+  let phase = "Claude is thinking";
+  digTimer = setInterval(() => { meta.textContent = phase + " · " + Math.round((Date.now() - t0) / 1000) + " s" + (careful ? " · careful mode" : ""); }, 500);
+  let shown = 0;
+  return (text) => {
+    phase = "Writing the tree";
+    const forms = [...text.matchAll(/"form"\s*:\s*"((?:[^"\\]|\\.)*)"/g)].map(m => m[1]);
+    const langs = [...text.matchAll(/"lang"\s*:\s*"((?:[^"\\]|\\.)*)"/g)].map(m => m[1]);
+    const ready = Math.min(forms.length, langs.length);
+    for (; shown < ready; shown++) {
+      const li = el("li"); li.append(el("b", null, forms[shown])); li.append(el("span", null, langs[shown]));
+      log.append(li);
+      while (log.children.length > 7) log.firstChild.remove();
+    }
+  };
+}
+
+/* ---------- tracing ---------- */
+const ERR = {
+  not_granted: ["Live tracing is off", "Claude wasn't allowed for this page, so only preloaded and saved words work. Reload the page to be asked again."],
+  sampling_disabled: ["Live tracing is unavailable", "Claude isn't available on this account. Preloaded words still work."],
+  rate_limited: ["Too many traces at once", "Claude needs a short break. Wait a minute, then try again."],
+  session_expired: ["Signed out", "Sign in to claude.ai again, then reload this page."],
+  refused: ["Claude declined this one", "Try a different word."],
+  empty_completion: ["No answer came back", "Try again, or try a different spelling."],
+  invalid_json: ["The answer came back garbled", "Claude's reply couldn't be read as a tree. Try again; careful mode is more reliable for long words."],
+  prompt_too_large: ["That input is too long", "Enter a single word or short phrase."],
+  local_auth: ["Claude Code isn't signed in", "Run claude in a terminal, sign in with /login, then try again."],
+  local_missing: ["Claude Code not found", "Install Claude Code, or start the server with CLAUDE_BIN set to the claude command's path."],
+  local_down: ["Lost the local server", "Check that node etymon/server.mjs is still running, then try again."],
+};
+const HARD_OFF = ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"];
+
+function normWord(w) { return w.trim().replace(/\s+/g, " ").slice(0, 60); }
+
+async function trace(rawWord, lang, opts = {}) {
+  const word = normWord(rawWord);
+  if (!word) return;
+  cancelInflight();
+  $("wordInput").value = word;
+  const lc = word.toLowerCase();
+  if (!opts.refresh && (!lang || lang === "English") && PRELOADED[lc]) { show(normalize(PRELOADED[lc]), "preloaded", "English"); return; }
+  const careful = $("carefulBox").checked;
+  const tier = careful ? "complex" : "default";
+  const key = cacheKey(word, lang, tier);
+  if (!opts.refresh) {
+    const hit = store.get(key);
+    if (hit && hit.data) { const d = normalize(hit.data); if (!d.error) { show(d, "cached", lang); return; } }
+  }
+  if (!sample || liveOff) {
+    showMessage("Live tracing isn't available here", "Open this page on claude.ai while signed in, or run it locally with node etymon/server.mjs, to trace any word. The preloaded words work everywhere.", state.data ? [["Back to " + state.data.word, clearOverlay]] : []);
+    return;
+  }
+  const myCtl = new AbortController(); ctl = myCtl;
+  const onText = showDig(word, careful);
+  try {
+    const raw = await sample.json(buildPrompt(word, lang), {
+      signal: myCtl.signal, modelTier: tier,
+      cache: opts.refresh ? { gcTime: 86400000, refresh: true } : { gcTime: 86400000 },
+      onText: ({ text }) => onText(text)
+    });
+    if (ctl !== myCtl) return;
+    const d = normalize(raw);
+    if (d.error) {
+      showMessage("No tree for “" + word + "”", d.error, state.data ? [["Back to " + state.data.word, clearOverlay]] : []);
+      return;
+    }
+    store.set(key, { data: raw, at: Date.now() });
+    remember(word, lang);
+    show(d, "live", lang);
+  } catch (e) {
+    if (ctl !== myCtl) return;
+    const code = e && e.code;
+    if (code === "cancelled") { clearOverlay(); return; }
+    if (HARD_OFF.includes(code)) setLive(false, "Live tracing is off for this view");
+    const [t, b] = ERR[code] || (code === "local_error" ? ["Claude Code returned an error", (e && e.message) || "See the terminal running the server."] : ["Something went wrong", "The connection to Claude dropped. Try again in a moment."]);
+    showMessage(t, b, [
+      ...(HARD_OFF.includes(code) ? [] : [["Try again", () => trace(word, lang)]]),
+      ...(state.data ? [["Back to " + state.data.word, clearOverlay]] : [])
+    ]);
+  } finally {
+    if (ctl === myCtl) ctl = null;
+  }
+}
+function traceRelative(r) {
+  const form = r.form.replace(/\s*\(.*\)\s*$/, "").replace(/^\*/, "").trim();
+  const lang = /^english$/i.test(r.lang) ? "English" : r.lang;
+  $("langSelect").value = [...$("langSelect").options].some(o => o.value === lang) ? lang : "";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  trace(form, lang);
+}
+
+/* recent words */
+function remember(word, lang) {
+  const list = (store.get("etymon:recent") || []).filter(x => x.w.toLowerCase() !== word.toLowerCase());
+  list.unshift({ w: word, l: lang || "" });
+  store.set("etymon:recent", list.slice(0, 8));
+  renderRecent();
+}
+function renderRecent() {
+  const box = $("recentChips");
+  const list = store.get("etymon:recent") || [];
+  box.querySelectorAll(".chip").forEach(c => c.remove());
+  box.hidden = !list.length;
+  for (const x of list) {
+    const b = el("button", "chip", x.w); b.type = "button";
+    b.addEventListener("click", () => { $("langSelect").value = x.l; trace(x.w, x.l); });
+    box.append(b);
+  }
+}
+
+function setLive(on, text) {
+  const s = $("liveStatus");
+  s.dataset.state = on ? "ready" : "off";
+  $("liveText").textContent = text;
+  liveOff = !on;
+  document.querySelectorAll("#liveChips .chip").forEach(c => c.disabled = !on);
+}
+
+/* ---------- boot ---------- */
+for (const w of Object.keys(PRELOADED)) {
+  const b = el("button", "chip", w); b.type = "button"; b.dataset.w = w;
+  b.addEventListener("click", () => { $("langSelect").value = ""; trace(w, ""); });
+  $("preChips").append(b);
+}
+for (const w of LIVE_SUGGEST) {
+  const b = el("button", "chip live", w); b.type = "button";
+  b.addEventListener("click", () => { $("langSelect").value = ""; trace(w, ""); });
+  $("liveChips").append(b);
+}
+$("searchForm").addEventListener("submit", (e) => { e.preventDefault(); trace($("wordInput").value, $("langSelect").value); });
+renderRecent();
+
+const start = (location.hash || "").slice(1).toLowerCase();
+show(normalize(PRELOADED[start] || PRELOADED.salary), "preloaded", "English");
+
+stage.addEventListener("scroll", () => { plane.style.setProperty("--sx", stage.scrollLeft + "px"); }, { passive: true });
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (state.data) { renderTree(false); } }, 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => state.data && renderTree(false));
+
+/* Running locally (node etymon/server.mjs): same call shape as claude.ai's sample.json,
+   answered by the local server through the viewer's own Claude Code login. */
+function parseLoose(t) {
+  try { return JSON.parse(t); } catch {}
+  const f = t.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (f) { try { return JSON.parse(f[1]); } catch {} }
+  const i = t.search(/[\[{]/), j = Math.max(t.lastIndexOf("}"), t.lastIndexOf("]"));
+  if (i >= 0 && j > i) { try { return JSON.parse(t.slice(i, j + 1)); } catch {} }
+  throw { code: "invalid_json", message: "No JSON in reply", text: t };
+}
+async function localSample() {
+  if (!/^https?:$/.test(location.protocol)) return null;
+  try {
+    const r = await fetch("/api/health", { cache: "no-store" });
+    if (!r.ok || !(await r.json()).ok) return null;
+  } catch { return null; }
+  const json = async (input, opts = {}) => {
+    let resp;
+    try {
+      resp = await fetch("/api/trace", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ prompt: input, tier: opts.modelTier || "default" }), signal: opts.signal
+      });
+    } catch (e) {
+      throw opts.signal && opts.signal.aborted ? { code: "cancelled", message: "Stopped" } : { code: "local_down", message: String(e) };
+    }
+    if (!resp.ok || !resp.body) throw { code: "local_error", message: "Server returned " + resp.status };
+    const reader = resp.body.getReader(), dec = new TextDecoder();
+    let text = "", buf = "", err = null, done = false;
+    try {
+      while (!done) {
+        const r = await reader.read();
+        if (r.done) break;
+        buf += dec.decode(r.value, { stream: true });
+        let i;
+        while ((i = buf.indexOf("\n")) >= 0) {
+          const ln = buf.slice(0, i); buf = buf.slice(i + 1);
+          if (!ln.trim()) continue;
+          const ev = JSON.parse(ln);
+          if (ev.t === "delta") { text += ev.text; opts.onText && opts.onText({ text, delta: ev.text }); }
+          else if (ev.t === "error") { err = { code: ev.code || "local_error", message: ev.message || "" }; done = true; }
+          else if (ev.t === "done") done = true;
+        }
+      }
+    } catch (e) {
+      throw opts.signal && opts.signal.aborted ? { code: "cancelled", message: "Stopped" } : { code: "local_down", message: String(e) };
+    }
+    if (err) throw err;
+    if (!text.trim()) throw { code: "empty_completion", message: "Empty reply" };
+    return parseLoose(text);
+  };
+  return { json, local: true };
+}
+
+(async () => {
+  try {
+    sample = window.claude && typeof window.claude.use === "function" ? await window.claude.use("sample") : null;
+  } catch { sample = null; }
+  if (!sample && !window.claude) sample = await localSample();
+  if (sample && sample.local) setLive(true, "Live tracing ready · using your Claude Code login");
+  else if (sample) setLive(true, "Live tracing ready · any word, any language");
+  else setLive(false, "Live tracing off here · preloaded words only");
+})();
+})();
+</script>
