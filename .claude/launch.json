@@ -4,8 +4,26 @@
     {
       "name": "mario-web",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "mario"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8765",
+        "--directory",
+        "mario"
+      ],
       "port": 8765
+    },
+    {
+      "name": "portfolio",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8766",
+        "--directory",
+        "portfolio"
+      ],
+      "port": 8766
     }
   ]
 }

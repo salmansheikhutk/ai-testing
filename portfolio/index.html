@@ -1,0 +1,117 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Salman Sheikh</title>
+<meta name="description" content="AI/Data Engineer. Projects built with Claude.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;600;700&display=swap">
+<style>
+  /* Layout: one narrow column. A name, then the work. */
+  :root {
+    --bg: #f5f6f4;
+    --fg: #161917;
+    --muted: #5d645f;
+    --line: #d9ddd8;
+    --accent: #2c55c9;
+    --sans: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111312; --fg: #e8ebe8; --muted: #9aa29c; --line: #2a2f2c; --accent: #86a5ff;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111312; --fg: #e8ebe8; --muted: #9aa29c; --line: #2a2f2c; --accent: #86a5ff;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font: 400 17px/1.55 var(--sans);
+    padding: 0 20px; padding-block: clamp(56px, 12vw, 128px) 72px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 720px; margin: 0 auto; display: grid; gap: clamp(56px, 9vw, 96px); }
+  h1, h2 { margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; text-decoration-color: var(--line); }
+  a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  header { display: grid; gap: 14px; }
+  h1 { font-size: clamp(2.6rem, 8vw, 4.2rem); font-weight: 700; line-height: 1; letter-spacing: -0.035em; }
+  .role { font: 400 14px/1.6 var(--mono); color: var(--muted); }
+
+  .work { display: grid; gap: clamp(48px, 8vw, 72px); }
+  .project { display: grid; gap: 14px; }
+  h2 { font-size: clamp(1.3rem, 3.5vw, 1.6rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
+  .project p { color: var(--muted); max-width: 62ch; }
+  .lines { display: grid; gap: 4px; }
+  .project .meta { font: 400 13px/1.6 var(--mono); padding-top: 4px; }
+
+  .video { position: relative; margin: 0; border-radius: 6px; overflow: hidden; background: #000; aspect-ratio: 16 / 9; max-width: 100%; }
+  .video video { display: block; width: 100%; height: 100%; }
+  /* Sits on the video, which is always dark, so its colors are fixed. */
+  .sound {
+    position: absolute; top: 12px; left: 12px;
+    font: 500 13px/1 var(--mono); color: #fff; cursor: pointer;
+    background: rgba(0, 0, 0, 0.72); border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px; padding: 8px 14px;
+  }
+  .sound:hover { background: rgba(0, 0, 0, 0.88); }
+</style>
+
+<main class="page">
+  <header>
+    <h1>Salman Sheikh</h1>
+    <p class="role">AI/Data Engineer · Knoxville, TN</p>
+  </header>
+
+  <section class="work" aria-label="Projects">
+    <article class="project">
+      <h2>Super Mario Bros., World 8-4</h2>
+      <figure class="video">
+        <video id="mario" src="mario-8-4.mp4" poster="mario-8-4.jpg" controls loop playsinline preload="metadata"
+          aria-label="30-second video: choosing level 8-4, switching on new powers, then the full run to Bowser"></video>
+        <button class="sound" id="sound" type="button" hidden>Tap for sound</button>
+      </figure>
+      <div class="lines">
+        <p>I never reached the last level as a kid, so I went back with Claude.</p>
+        <p>World 8-4 is a maze. Claude tested every pipe and added arrows to the right ones.</p>
+        <p>We also made the lava walkable.</p>
+        <p>Claude edited this video too.</p>
+      </div>
+      <p class="meta">Claude Opus 5.5 · JavaScript, Python · $20/month plan</p>
+    </article>
+  </section>
+</main>
+
+<script>
+  // Play the clip with sound on load. Browsers usually block sound until the
+  // visitor interacts, so it then plays muted with a "Tap for sound" button,
+  // and sound comes on with the visitor's first click, tap or key press, or
+  // when they press play. Clicks on the video body go to its own controls.
+  const v = document.getElementById("mario");
+  const btn = document.getElementById("sound");
+  const events = ["pointerdown", "keydown"];
+  function soundOn() {
+    v.muted = false;
+    btn.hidden = true;
+    v.play().catch(() => {});
+    events.forEach((t) => removeEventListener(t, firstTouch, true));
+  }
+  function firstTouch(e) { if (e.target !== v) soundOn(); }
+  btn.addEventListener("click", soundOn);
+  v.addEventListener("play", () => { if (v.muted && navigator.userActivation?.isActive) soundOn(); });
+  v.addEventListener("volumechange", () => { if (!v.muted) btn.hidden = true; });
+  function playMuted() {
+    v.muted = true;
+    btn.hidden = false;
+    events.forEach((t) => addEventListener(t, firstTouch, true));
+    v.play().catch(() => {});
+  }
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) v.play().catch(playMuted);
+</script>
