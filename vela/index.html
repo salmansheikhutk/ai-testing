@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VELA — Cut for Open Water</title>
+  <meta name="description" content="VELA makes performance sailing apparel for people who live by the wind." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Figtree:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0c2430;
+      --ink-soft: #243b47;
+      --mist: #e8f1f4;
+      --foam: #f4fafb;
+      --sea: #1f6f7a;
+      --sea-deep: #134e56;
+      --horizon: #7eb8c4;
+      --signal: #c6e05a;
+      --signal-ink: #1a2e0a;
+      --line: rgba(12, 36, 48, 0.12);
+      --font-display: "Syne", sans-serif;
+      --font-body: "Figtree", sans-serif;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --space-section: clamp(4.5rem, 12vw, 8.5rem);
+      --pad-x: clamp(1.25rem, 5vw, 4.5rem);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 1.0625rem;
+      line-height: 1.55;
+      background:
+        radial-gradient(120% 80% at 100% 0%, rgba(126, 184, 196, 0.28), transparent 55%),
+        radial-gradient(90% 60% at 0% 40%, rgba(198, 224, 90, 0.12), transparent 50%),
+        linear-gradient(180deg, var(--foam) 0%, var(--mist) 48%, #d9ebea 100%);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* —— Header —— */
+    .site-header {
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem var(--pad-x);
+      color: #f7fcfd;
+      mix-blend-mode: difference;
+    }
+
+    .site-header a {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: clamp(1.25rem, 3vw, 2.25rem);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links a {
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 0.92rem;
+      letter-spacing: 0.02em;
+      opacity: 0.88;
+      transition: opacity 0.25s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      opacity: 1;
+    }
+
+    /* —— Hero —— */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      color: #f4fafb;
+      isolation: isolate;
+    }
+
+    .hero-media {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      overflow: hidden;
+    }
+
+    .hero-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 42%;
+      transform: scale(1.08);
+      will-change: transform;
+      animation: heroDrift 28s var(--ease-out) infinite alternate;
+    }
+
+    .hero-shade {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(180deg, rgba(8, 24, 32, 0.18) 0%, rgba(8, 24, 32, 0.22) 35%, rgba(8, 24, 32, 0.72) 100%),
+        linear-gradient(90deg, rgba(8, 24, 32, 0.35) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      width: min(42rem, 100%);
+      padding: clamp(5.5rem, 14vh, 8rem) var(--pad-x) clamp(2.75rem, 7vh, 4.5rem);
+    }
+
+    .brand {
+      margin: 0 0 0.85rem;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(3.75rem, 14vw, 8.5rem);
+      line-height: 0.9;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero-headline {
+      margin: 0 0 0.85rem;
+      max-width: 16ch;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(1.35rem, 3.2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-support {
+      margin: 0 0 1.75rem;
+      max-width: 34ch;
+      font-size: clamp(1rem, 1.8vw, 1.125rem);
+      line-height: 1.5;
+      color: rgba(244, 250, 251, 0.88);
+    }
+
+    .cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem 1rem;
+      align-items: center;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      padding: 0.9rem 1.35rem;
+      border-radius: 2px;
+      transition: transform 0.3s var(--ease-out), background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--signal);
+      outline-offset: 3px;
+    }
+
+    .btn-primary {
+      background: var(--signal);
+      color: var(--signal-ink);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      background: #d4ea78;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #f4fafb;
+      border-color: rgba(244, 250, 251, 0.55);
+    }
+
+    .btn-ghost:hover {
+      border-color: #f4fafb;
+      transform: translateY(-2px);
+    }
+
+    .btn-ink {
+      background: var(--ink);
+      color: var(--foam);
+    }
+
+    .btn-ink:hover {
+      transform: translateY(-2px);
+      background: var(--sea-deep);
+    }
+
+    /* Entrance motion */
+    .reveal-hero > * {
+      opacity: 0;
+      transform: translateY(1.4rem);
+      animation: riseIn 0.95s var(--ease-out) forwards;
+    }
+
+    .reveal-hero > *:nth-child(1) { animation-delay: 0.12s; }
+    .reveal-hero > *:nth-child(2) { animation-delay: 0.28s; }
+    .reveal-hero > *:nth-child(3) { animation-delay: 0.42s; }
+    .reveal-hero > *:nth-child(4) { animation-delay: 0.56s; }
+
+    @keyframes riseIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes heroDrift {
+      from { transform: scale(1.08) translate3d(0, 0, 0); }
+      to { transform: scale(1.14) translate3d(-1.5%, -1%, 0); }
+    }
+
+    /* —— Shared sections —— */
+    section {
+      padding: var(--space-section) var(--pad-x);
+    }
+
+    .section-label {
+      margin: 0 0 0.75rem;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sea);
+    }
+
+    .section-title {
+      margin: 0 0 1rem;
+      max-width: 14ch;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2rem, 5.5vw, 3.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .section-copy {
+      margin: 0;
+      max-width: 38ch;
+      color: var(--ink-soft);
+      font-size: 1.0625rem;
+    }
+
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(2rem);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+
+    .scroll-reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* —— Craft —— */
+    .craft {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(2rem, 6vw, 4.5rem);
+      align-items: end;
+    }
+
+    .craft-visual {
+      position: relative;
+      min-height: clamp(18rem, 48vw, 32rem);
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .craft-visual img {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+      object-fit: cover;
+      object-position: center;
+      transform: scale(1.02);
+      transition: transform 1.4s var(--ease-out);
+    }
+
+    .craft-visual.is-visible img {
+      transform: scale(1);
+    }
+
+    .craft-copy {
+      max-width: 34rem;
+    }
+
+    @media (min-width: 880px) {
+      .craft {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+    }
+
+    /* —— Horizon band —— */
+    .horizon {
+      position: relative;
+      padding-block: clamp(5rem, 14vw, 9rem);
+      color: var(--foam);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .horizon-media {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+    }
+
+    .horizon-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 60%;
+    }
+
+    .horizon-shade {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(90deg, rgba(12, 36, 48, 0.82) 0%, rgba(12, 36, 48, 0.55) 48%, rgba(12, 36, 48, 0.28) 100%);
+    }
+
+    .horizon-inner {
+      max-width: 36rem;
+    }
+
+    .horizon .section-label {
+      color: var(--signal);
+    }
+
+    .horizon .section-title {
+      color: var(--foam);
+      max-width: 12ch;
+    }
+
+    .horizon .section-copy {
+      color: rgba(244, 250, 251, 0.86);
+      margin-bottom: 1.75rem;
+    }
+
+    /* —— Closing —— */
+    .closing {
+      display: grid;
+      gap: 1.5rem;
+      justify-items: start;
+      background:
+        linear-gradient(135deg, rgba(31, 111, 122, 0.08), transparent 45%),
+        linear-gradient(180deg, transparent, rgba(198, 224, 90, 0.1));
+      border-top: 1px solid var(--line);
+    }
+
+    .closing .section-title {
+      max-width: 16ch;
+    }
+
+    .email-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      width: min(100%, 32rem);
+      margin-top: 0.25rem;
+    }
+
+    .email-form label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+
+    .email-form input {
+      flex: 1 1 14rem;
+      min-width: 0;
+      border: 1.5px solid var(--line);
+      background: rgba(255, 255, 255, 0.65);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: 2px;
+      transition: border-color 0.25s ease, background 0.25s ease;
+    }
+
+    .email-form input:focus {
+      outline: none;
+      border-color: var(--sea);
+      background: #fff;
+    }
+
+    .form-note {
+      margin: 0.35rem 0 0;
+      font-size: 0.875rem;
+      color: var(--ink-soft);
+      min-height: 1.25em;
+    }
+
+    /* —— Footer —— */
+    .site-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.5rem var(--pad-x) 2rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.875rem;
+      color: var(--ink-soft);
+    }
+
+    .site-footer strong {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 640px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero-content {
+        padding-bottom: 2.25rem;
+      }
+
+      .cta-group {
+        width: 100%;
+      }
+
+      .cta-group .btn {
+        flex: 1 1 auto;
+        text-align: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+
+      .hero-media img,
+      .reveal-hero > *,
+      .scroll-reveal,
+      .craft-visual img {
+        animation: none !important;
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="#top" aria-label="VELA home">VELA</a>
+    <nav aria-label="Primary">
+      <ul class="nav-links">
+        <li><a href="#craft">Craft</a></li>
+        <li><a href="#horizon">Horizon</a></li>
+        <li><a href="#join">Join</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-label="VELA introduction">
+      <div class="hero-media" aria-hidden="true">
+        <img
+          src="https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=2400&q=80"
+          alt=""
+          width="2400"
+          height="1600"
+          fetchpriority="high"
+        />
+      </div>
+      <div class="hero-shade" aria-hidden="true"></div>
+      <div class="hero-content reveal-hero">
+        <p class="brand" aria-label="Brand">VELA</p>
+        <h1 class="hero-headline">Cut for open water.</h1>
+        <p class="hero-support">Performance sailing apparel shaped by wind, salt, and long days offshore.</p>
+        <div class="cta-group">
+          <a class="btn btn-primary" href="#join">Explore the line</a>
+          <a class="btn btn-ghost" href="#craft">See the craft</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="craft" id="craft" aria-labelledby="craft-title">
+      <div class="craft-visual scroll-reveal" aria-hidden="true">
+        <img
+          src="https://images.unsplash.com/photo-1540946485063-a40da27545f8?auto=format&fit=crop&w=1800&q=80"
+          alt=""
+          width="1800"
+          height="1200"
+          loading="lazy"
+        />
+      </div>
+      <div class="craft-copy scroll-reveal">
+        <p class="section-label">The craft</p>
+        <h2 class="section-title" id="craft-title">Built for the long reach.</h2>
+        <p class="section-copy">
+          Salt-resistant seams, quiet stretch panels, and fabrics that dry before the next tack.
+          Every piece is tuned for motion—not the marina parking lot.
+        </p>
+      </div>
+    </section>
+
+    <section class="horizon" id="horizon" aria-labelledby="horizon-title">
+      <div class="horizon-media" aria-hidden="true">
+        <img
+          src="https://images.unsplash.com/photo-1534190239940-9ba8944ea261?auto=format&fit=crop&w=2400&q=80"
+          alt=""
+          width="2400"
+          height="1600"
+          loading="lazy"
+        />
+      </div>
+      <div class="horizon-shade" aria-hidden="true"></div>
+      <div class="horizon-inner scroll-reveal">
+        <p class="section-label">On the water</p>
+        <h2 class="section-title" id="horizon-title">Hold the line.</h2>
+        <p class="section-copy">
+          From dawn starts to twilight finishes, VELA keeps you sharp when the breeze builds
+          and the coastline shrinks behind you.
+        </p>
+        <a class="btn btn-primary" href="#join">Request early access</a>
+      </div>
+    </section>
+
+    <section class="closing" id="join" aria-labelledby="join-title">
+      <div class="scroll-reveal">
+        <p class="section-label">Join the list</p>
+        <h2 class="section-title" id="join-title">First drop, first call.</h2>
+        <p class="section-copy">
+          Be first to know when the coastal line launches. No spam—just wind reports and release notes.
+        </p>
+        <form class="email-form" id="waitlist-form" novalidate>
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@sail.mail" required />
+          <button class="btn btn-ink" type="submit">Notify me</button>
+        </form>
+        <p class="form-note" id="form-note" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div><strong>VELA</strong> — cut for open water</div>
+    <div>© <span id="year"></span> VELA Studio</div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = String(new Date().getFullYear());
+
+    const revealEls = document.querySelectorAll(".scroll-reveal");
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              io.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
+      );
+      revealEls.forEach((el) => io.observe(el));
+    } else {
+      revealEls.forEach((el) => el.classList.add("is-visible"));
+    }
+
+    const form = document.getElementById("waitlist-form");
+    const note = document.getElementById("form-note");
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const email = new FormData(form).get("email");
+      if (!email || !String(email).includes("@")) {
+        note.textContent = "Enter a valid email to join the list.";
+        return;
+      }
+      note.textContent = "You're on the list. We'll write when the wind shifts.";
+      form.reset();
+    });
+  </script>
+</body>
+</html>
